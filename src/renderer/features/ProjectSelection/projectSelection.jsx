@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ProjectSelection = () => {
     const [selectedPath, setSelectedPath] = useState('');
+    const navigate = useNavigate();
     
     const handleSelectFolder = async () => {
         try {
@@ -15,6 +17,9 @@ const ProjectSelection = () => {
                 const folderPath = result.filePaths[0];
                 setSelectedPath(folderPath);
                 console.log('Selected folder:', folderPath);
+                
+                // Navigate to dashboard
+                navigate('/dashboard', { state: { selectedPath: folderPath } });
             }
         } catch (error) {
             console.error('Error selecting folder:', error);

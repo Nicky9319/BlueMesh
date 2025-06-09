@@ -1,6 +1,6 @@
 import { HashRouter as Router, Routes, Route } from 'react-router-dom'
 import ProjectSelection from './features/ProjectSelection/projectSelection'
-// import AuthPage from './Views/AuthPage/authPage'
+import Dashboard from './features/Dashboard/dashboard'
 
 
 
@@ -14,6 +14,10 @@ function App() {
         <Route
           path="/"
           element={<ProjectSelection />}
+        />
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
         />
       </Routes>
     </Router>

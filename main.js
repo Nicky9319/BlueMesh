@@ -28,6 +28,12 @@ ipcMain.handle('dialog:openDirectory', async () => {
       properties: ['openDirectory']
     });
     console.log('Dialog result:', result);
+    
+    // Log selected folder in main process
+    if (result && !result.canceled && result.filePaths.length > 0) {
+      console.log('MAIN PROCESS - Selected folder:', result.filePaths[0]);
+    }
+    
     return result;
   } catch (error) {
     console.error('Dialog error:', error);
