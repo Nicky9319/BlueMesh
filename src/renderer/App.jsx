@@ -1,5 +1,5 @@
 import { HashRouter as Router, Routes, Route } from 'react-router-dom'
-import MainPage from './Views/MainPage/mainPage'
+import ProjectSelection from './features/ProjectSelection/projectSelection'
 // import AuthPage from './Views/AuthPage/authPage'
 
 
@@ -13,7 +13,7 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={<MainPage />}
+          element={<ProjectSelection />}
         />
       </Routes>
     </Router>
