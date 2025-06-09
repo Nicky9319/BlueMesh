@@ -1,0 +1,43 @@
+import React, { useState } from 'react';
+
+const ProjectSelection = () => {
+    const [selectedPath, setSelectedPath] = useState('');
+    
+    const handleSelectFolder = async () => {
+        try {
+            console.log('Attempting to open folder dialog...');
+            console.log('window.electron:', window.electron);
+            
+            const result = await window.electron.ipcRenderer.invoke('dialog:openDirectory');
+            console.log('Dialog result received:', result);
+            
+            if (result && !result.canceled && result.filePaths.length > 0) {
+                const folderPath = result.filePaths[0];
+                setSelectedPath(folderPath);
+                console.log('Selected folder:', folderPath);
+            }
+        } catch (error) {
+            console.error('Error selecting folder:', error);
+            alert('Error opening folder dialog: ' + error.message);
+        }
+    };
+    
+    return (
+        <div className="flex h-screen items-center justify-center" style={{ backgroundColor: '#121317' }}>
+            <div className="text-center">
+                <h1 className="text-3xl font-bold text-white mb-8">Select Project Folder</h1>
+                <button
+                    onClick={handleSelectFolder}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
+                >
+                    Open Folder
+                </button>
+                {selectedPath && (
+                    <p className="text-gray-300 mt-4">Selected: {selectedPath}</p>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default ProjectSelection;

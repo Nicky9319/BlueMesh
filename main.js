@@ -1,6 +1,6 @@
 // Imports and modules !!! ---------------------------------------------------------------------------------------------------
 
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 
@@ -16,6 +16,26 @@ let mainWindow;
 // Variables and constants END !!! ---------------------------------------------------------------------------------------------------
 
 
+
+
+
+// IPC Handle Section !!! ------------------------------------------------------------------------------------------------------
+
+ipcMain.handle('dialog:openDirectory', async () => {
+  console.log('Open Directory Dialog Triggered');
+  try {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openDirectory']
+    });
+    console.log('Dialog result:', result);
+    return result;
+  } catch (error) {
+    console.error('Dialog error:', error);
+    throw error;
+  }
+});
+
+// IPC Handle Section END !!! ---------------------------------------------------------------------------------------------------
 
 
 

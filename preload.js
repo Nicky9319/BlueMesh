@@ -15,7 +15,12 @@ let dbApi = {initDb, getAgentsInfo, addAgentInfo, updateAgentEnvVariable};
 
 if (process.contextIsolated) {
   try{
-    contextBridge.exposeInMainWorld('electron', electronAPI)
+    contextBridge.exposeInMainWorld('electron', {
+      ...electronAPI,
+      ipcRenderer: {
+        invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args)
+      }
+    })
 
     contextBridge.exposeInMainWorld('db', {
       updateAgentEnvVariable: (agentId, envVariable) => dbApi.updateAgentEnvVariable ? dbApi.updateAgentEnvVariable(agentId, envVariable) : Promise.reject('db not loaded'),
@@ -30,7 +35,12 @@ if (process.contextIsolated) {
   }
 }
 else{
-  window.electron = electronAPI
+  window.electron = {
+    ...electronAPI,
+    ipcRenderer: {
+      invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args)
+    }
+  }
   window.db = {
     updateAgentEnvVariable: (agentId, envVariable) => dbApi.updateAgentEnvVariable ? dbApi.updateAgentEnvVariable(agentId, envVariable) : Promise.reject('db not loaded'),
     getAgentsInfo: () => dbApi.getAgentsInfo ? dbApi.getAgentsInfo() : Promise.reject('db not loaded'),
