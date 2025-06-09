@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { setCurrentProjectPath } from '../../../../store/ProjectSlice';
 
 const ProjectSelection = () => {
     const [selectedPath, setSelectedPath] = useState('');
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     
     const handleSelectFolder = async () => {
@@ -16,10 +19,13 @@ const ProjectSelection = () => {
             if (result && !result.canceled && result.filePaths.length > 0) {
                 const folderPath = result.filePaths[0];
                 setSelectedPath(folderPath);
-                console.log('Selected folder:', folderPath);
+                
+                // Store in Redux
+                dispatch(setCurrentProjectPath(folderPath));
+                console.log('Stored in Redux:', folderPath);
                 
                 // Navigate to dashboard
-                navigate('/dashboard', { state: { selectedPath: folderPath } });
+                navigate('/dashboard');
             }
         } catch (error) {
             console.error('Error selecting folder:', error);

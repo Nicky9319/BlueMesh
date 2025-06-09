@@ -1,14 +1,16 @@
 import React, { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
-    const location = useLocation();
     const navigate = useNavigate();
-    const selectedPath = location.state?.selectedPath || 'No folder selected';
+    const currentProjectPath = useSelector(state => state.project.currentProjectPath);
+    const isProjectLoaded = useSelector(state => state.project.isProjectLoaded);
     
     useEffect(() => {
-        console.log('Dashboard loaded with selected folder:', selectedPath);
-    }, [selectedPath]);
+        console.log('Dashboard loaded - Project path from Redux:', currentProjectPath);
+        console.log('Project loaded status:', isProjectLoaded);
+    }, [currentProjectPath, isProjectLoaded]);
     
     const handleBackToSelection = () => {
         navigate('/');
@@ -29,7 +31,7 @@ const Dashboard = () => {
                 
                 <div className="bg-gray-800 p-4 rounded-lg mb-6">
                     <h2 className="text-xl font-semibold text-white mb-2">Current Project</h2>
-                    <p className="text-gray-300">{selectedPath}</p>
+                    <p className="text-gray-300">{currentProjectPath || 'No project selected'}</p>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
