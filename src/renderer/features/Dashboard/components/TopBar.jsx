@@ -1,20 +1,29 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+    startServer,
+    serverStarted,
+    serverFailed,
+    stopServer,
+    selectServerStatus
+} from '../../../../../store/ServeSlice';
 
 const TopBar = () => {
-    const [state, setState] = useState('idle'); // idle, loading, running
+    const dispatch = useDispatch();
+    const state = useSelector(selectServerStatus); // idle, loading, running
 
     const handleStart = () => {
-        setState('loading');
-        setTimeout(() => setState('running'), 1500); // Simulate loading
+        dispatch(startServer());
+        setTimeout(() => dispatch(serverStarted()), 1500); // Simulate loading
     };
 
     const handleRestart = () => {
-        setState('loading');
-        setTimeout(() => setState('running'), 1500);
+        dispatch(startServer());
+        setTimeout(() => dispatch(serverStarted()), 1500);
     };
 
     const handleStop = () => {
-        setState('idle');
+        dispatch(stopServer());
     };
 
     // Status text and color
