@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import './dashboard.css';
 
 const FileIcon = ({ extension, isDirectory }) => {
   if (isDirectory) return '📁';
@@ -40,17 +39,17 @@ const FileTreeItem = ({ item, level = 0, onFileClick }) => {
   return (
     <div>
       <div 
-        className="file-tree-item"
+        className="flex items-center py-1 px-2 cursor-pointer select-none text-sm leading-6 hover:bg-gray-700 text-gray-300"
         style={{ paddingLeft: `${level * 16 + 8}px` }}
         onClick={handleToggle}
       >
         {item.type === 'directory' && (
-          <span className="expand-icon">
+          <span className="w-4 text-xs mr-1 text-gray-300">
             {isExpanded ? '▼' : '▶'}
           </span>
         )}
         <FileIcon extension={item.extension} isDirectory={item.type === 'directory'} />
-        <span className="file-name">{item.name}</span>
+        <span className="ml-1.5 whitespace-nowrap overflow-hidden text-ellipsis">{item.name}</span>
       </div>
       {item.type === 'directory' && isExpanded && item.children && (
         <div>
@@ -128,41 +127,67 @@ const Dashboard = () => {
     };
     
     return (
-        <div className="dashboard-container">
-            <div className="sidebar">
-                <div className="sidebar-header">
-                    <h3>Explorer</h3>
-                    <button onClick={loadFolderStructure} disabled={loading}>
+        <div className="flex h-screen font-sans bg-gray-900 text-gray-300">
+            {/* Sidebar */}
+            <div className="w-80 bg-gray-800 border-r border-gray-700 flex flex-col">
+                {/* Sidebar Header */}
+                <div className="p-3 bg-gray-750 border-b border-gray-700 flex justify-between items-center">
+                    <h3 className="m-0 text-sm font-semibold uppercase text-gray-300">
+                        Explorer
+                    </h3>
+                    <button 
+                        onClick={loadFolderStructure} 
+                        disabled={loading}
+                        className="bg-transparent border-none text-gray-300 cursor-pointer p-1 rounded text-base hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
                         {loading ? '⟳' : '↻'}
                     </button>
                 </div>
-                <div className="file-tree">
+                
+                {/* File Tree */}
+                <div className="flex-1 overflow-y-auto py-1">
                     {loading ? (
-                        <div className="loading">Loading folder structure...</div>
+                        <div className="p-4 text-center text-gray-500 italic">
+                            Loading folder structure...
+                        </div>
                     ) : folderStructure ? (
                         <FileTreeItem 
                             item={folderStructure} 
                             onFileClick={handleFileClick}
                         />
                     ) : (
-                        <div className="no-folder">No folder structure available</div>
+                        <div className="p-4 text-center text-gray-500 italic">
+                            No folder structure available
+                        </div>
                     )}
                 </div>
             </div>
             
-            <div className="main-content">
-                <div className="content-header">
-                    <h2>Current Project</h2>
-                    <button onClick={handleBackToSelection}>Back to Selection</button>
+            {/* Main Content */}
+            <div className="flex-1 p-5 bg-gray-900 text-gray-300 overflow-y-auto">
+                {/* Content Header */}
+                <div className="flex justify-between items-center mb-5 pb-2.5 border-b border-gray-700">
+                    <h2 className="m-0 text-white text-xl">Current Project</h2>
+                    <button 
+                        onClick={handleBackToSelection}
+                        className="px-4 py-2 bg-blue-600 text-white border-none rounded cursor-pointer text-sm hover:bg-blue-700"
+                    >
+                        Back to Selection
+                    </button>
                 </div>
-                <p className="project-path">{currentProjectPath}</p>
                 
+                {/* Project Path */}
+                <p className="font-mono bg-gray-800 p-3 rounded border border-gray-700 mb-5 break-all">
+                    {currentProjectPath}
+                </p>
+                
+                {/* Selected File Info */}
                 {selectedFile && (
-                    <div className="file-info">
-                        <h3>Selected File: {selectedFile.name}</h3>
-                        <p>Path: {selectedFile.path}</p>
-                        <p>Size: {(selectedFile.size / 1024).toFixed(2)} KB</p>
-                        <p>Modified: {new Date(selectedFile.modified).toLocaleString()}</p>
+                    <div className="bg-gray-800 p-4 rounded border border-gray-700">
+                        <h3 className="mt-0 text-white">Selected File: {selectedFile.name}</h3>
+                        <p className="my-2 font-mono text-xs">Path: {selectedFile.path}</p>
+                        <p className="my-2 font-mono text-xs">Size: {(selectedFile.size / 1024).toFixed(2)} KB</p>
+                        <p className="my-2 font-mono text-xs">Modified: {new Date(selectedFile.modified).toLocaleString()}</p>
                     </div>
                 )}
             </div>
