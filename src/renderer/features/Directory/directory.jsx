@@ -96,52 +96,66 @@ const Dashboard = () => {
     };
     
     return (
-        <>
-        <div className="`font-bold mb-4 text-[#C9D1D9] text-3xl border-b border-[#30363D] pb-2">
-                Directory Explorer
+        <div className="h-full bg-[#0D1117] text-[#C9D1D9]">
+            {/* Header */}
+            <div className="mb-6">
+                <h1 className="text-2xl font-bold text-[#C9D1D9] mb-2">Project Explorer</h1>
+                <p className="text-[#8B949E]">Browse and manage your project files</p>
             </div>
-        <div className="flex h-screen font-sans bg-gray-900 text-gray-300">
-            
-            {/* Resizable Sidebar */}
-            <Sidebar
-                folderStructure={folderStructure}
-                isLoadingStructure={isLoadingStructure}
-                onFileClick={handleFileClick}
-                onRefresh={refreshFolderStructure}
-                isCollapsed={isSidebarCollapsed}
-                onToggleCollapse={handleToggleSidebar}
-            />
-            
-            {/* Main Content */}
-            <div className="flex-1 p-5 bg-gray-900 text-gray-300 overflow-y-auto">
-                {/* Content Header */}
-                <div className="flex justify-between items-center mb-5 pb-2.5 border-b border-gray-700">
-                    <h2 className="m-0 text-white text-xl">Current Project</h2>
-                    <button 
-                        onClick={handleBackToSelection}
-                        className="px-4 py-2 bg-blue-600 text-white border-none rounded cursor-pointer text-sm hover:bg-blue-700"
-                    >
-                        Back to Selection
-                    </button>
-                </div>
+
+            <div className="flex h-full bg-[#0D1117] text-[#C9D1D9] border border-[#30363D] rounded-lg overflow-hidden">
+                {/* Resizable Sidebar */}
+                <Sidebar
+                    folderStructure={folderStructure}
+                    isLoadingStructure={isLoadingStructure}
+                    onFileClick={handleFileClick}
+                    onRefresh={refreshFolderStructure}
+                    isCollapsed={isSidebarCollapsed}
+                    onToggleCollapse={handleToggleSidebar}
+                />
                 
-                {/* Project Path */}
-                <p className="font-mono bg-gray-800 p-3 rounded border border-gray-700 mb-5 break-all">
-                    {currentProjectPath}
-                </p>
-                
-                {/* Selected File Info */}
-                {selectedFile && (
-                    <div className="bg-gray-800 p-4 rounded border border-gray-700">
-                        <h3 className="mt-0 text-white">Selected File: {selectedFile.name}</h3>
-                        <p className="my-2 font-mono text-xs">Path: {selectedFile.path}</p>
-                        <p className="my-2 font-mono text-xs">Size: {(selectedFile.size / 1024).toFixed(2)} KB</p>
-                        <p className="my-2 font-mono text-xs">Modified: {new Date(selectedFile.modified).toLocaleString()}</p>
+                {/* Main Content */}
+                <div className="flex-1 p-5 bg-[#0D1117] text-[#C9D1D9] overflow-y-auto">
+                    {/* Content Header */}
+                    <div className="flex justify-between items-center mb-5 pb-3 border-b border-[#30363D]">
+                        <h2 className="m-0 text-[#C9D1D9] text-xl font-semibold">Current Project</h2>
+                        <button 
+                            onClick={handleBackToSelection}
+                            className="px-4 py-2 bg-[#1F6FEB] text-white border-none rounded cursor-pointer text-sm hover:bg-[#58A6FF] transition-colors duration-200"
+                        >
+                            Back to Selection
+                        </button>
                     </div>
-                )}
+                    
+                    {/* Project Path */}
+                    <div className="bg-[#30363D] p-4 rounded-lg border border-[#30363D] mb-5">
+                        <p className="text-[#8B949E] text-sm mb-2">Project Path:</p>
+                        <p className="font-mono text-[#C9D1D9] break-all">{currentProjectPath}</p>
+                    </div>
+                    
+                    {/* Selected File Info */}
+                    {selectedFile && (
+                        <div className="bg-[#30363D] p-4 rounded-lg border border-[#30363D]">
+                            <h3 className="mt-0 text-[#C9D1D9] font-semibold mb-3">Selected File: {selectedFile.name}</h3>
+                            <div className="space-y-2">
+                                <div className="flex justify-between">
+                                    <span className="text-[#8B949E] text-sm">Path:</span>
+                                    <span className="text-[#C9D1D9] font-mono text-sm">{selectedFile.path}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-[#8B949E] text-sm">Size:</span>
+                                    <span className="text-[#C9D1D9] text-sm">{(selectedFile.size / 1024).toFixed(2)} KB</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-[#8B949E] text-sm">Modified:</span>
+                                    <span className="text-[#C9D1D9] text-sm">{new Date(selectedFile.modified).toLocaleString()}</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
-        </>
     );
 };
 
