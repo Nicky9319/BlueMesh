@@ -8,6 +8,12 @@ import {
     selectServerStatus
 } from '../../../../../store/ServerStateSlice'; // Adjust the import path as necessary
 
+// New helper function for notifications
+function showNotification(message, type = 'info') {
+    const emoji = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+    alert(`${emoji} ${message}`);
+}
+
 const TopBar = () => {
     const dispatch = useDispatch();
     const state = useSelector(selectServerStatus);
@@ -74,12 +80,6 @@ const TopBar = () => {
             }
         };
     }, [dispatch]);
-
-    const showNotification = (message, type = 'info') => {
-        // Simple alert for now - can be replaced with a toast notification system
-        const emoji = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
-        alert(`${emoji} ${message}`);
-    };
 
     const handleStart = async () => {
         if (!currentProjectPath) {

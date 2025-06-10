@@ -4,6 +4,29 @@ import { useNavigate } from 'react-router-dom';
 import { setFolderStructure, setLoadingStructure } from '../../../../store/ServerInfoSlice';
 import Sidebar from './components/Sidebar';
 
+function SelectedFileDetails({ file }) {
+    if (!file) return null;
+    return (
+        <div className="bg-[#30363D] p-4 rounded-lg border border-[#30363D]">
+            <h3 className="mt-0 text-[#C9D1D9] font-semibold mb-3">Selected File: {file.name}</h3>
+            <div className="space-y-2">
+                <div className="flex justify-between">
+                    <span className="text-[#8B949E] text-sm">Path:</span>
+                    <span className="text-[#C9D1D9] font-mono text-sm">{file.path}</span>
+                </div>
+                <div className="flex justify-between">
+                    <span className="text-[#8B949E] text-sm">Size:</span>
+                    <span className="text-[#C9D1D9] text-sm">{(file.size / 1024).toFixed(2)} KB</span>
+                </div>
+                <div className="flex justify-between">
+                    <span className="text-[#8B949E] text-sm">Modified:</span>
+                    <span className="text-[#C9D1D9] text-sm">{new Date(file.modified).toLocaleString()}</span>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 const Dashboard = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -134,25 +157,7 @@ const Dashboard = () => {
                     </div>
                     
                     {/* Selected File Info */}
-                    {selectedFile && (
-                        <div className="bg-[#30363D] p-4 rounded-lg border border-[#30363D]">
-                            <h3 className="mt-0 text-[#C9D1D9] font-semibold mb-3">Selected File: {selectedFile.name}</h3>
-                            <div className="space-y-2">
-                                <div className="flex justify-between">
-                                    <span className="text-[#8B949E] text-sm">Path:</span>
-                                    <span className="text-[#C9D1D9] font-mono text-sm">{selectedFile.path}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-[#8B949E] text-sm">Size:</span>
-                                    <span className="text-[#C9D1D9] text-sm">{(selectedFile.size / 1024).toFixed(2)} KB</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-[#8B949E] text-sm">Modified:</span>
-                                    <span className="text-[#C9D1D9] text-sm">{new Date(selectedFile.modified).toLocaleString()}</span>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    <SelectedFileDetails file={selectedFile} />
                 </div>
             </div>
         </div>

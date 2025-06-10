@@ -1,6 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ConsoleSidebar from './components/ConsoleSidebar';
 
+// New internal LogEntry component
+function LogEntry({ log, getLogColor }) {
+	return (
+		<div className="flex items-start gap-3 py-1">
+			<span className="text-[#8B949E] text-xs whitespace-nowrap">
+				{new Date(log.timestamp).toLocaleTimeString()}
+			</span>
+			<span className={`text-xs font-bold uppercase whitespace-nowrap ${getLogColor(log.level)}`}>
+				[{log.level}]
+			</span>
+			<span className="text-[#8B949E] text-xs whitespace-nowrap">
+				[{log.service}]
+			</span>
+			<span className="text-[#C9D1D9] text-xs flex-1 break-words">
+				{log.message}
+			</span>
+		</div>
+	);
+}
+
 const Console = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [logs, setLogs] = useState([
@@ -91,21 +111,8 @@ const Console = () => {
                 <div className="flex-1 bg-[#0D1117] p-4 overflow-hidden">
                     <div className="h-full bg-[#161B22] rounded-lg border border-[#30363D] p-4 overflow-y-auto">
                         <div className="font-mono text-sm space-y-1">
-                            {logs.map((log) => (
-                                <div key={log.id} className="flex items-start gap-3 py-1">
-                                    <span className="text-[#8B949E] text-xs whitespace-nowrap">
-                                        {new Date(log.timestamp).toLocaleTimeString()}
-                                    </span>
-                                    <span className={`text-xs font-bold uppercase whitespace-nowrap ${getLogColor(log.level)}`}>
-                                        [{log.level}]
-                                    </span>
-                                    <span className="text-[#8B949E] text-xs whitespace-nowrap">
-                                        [{log.service}]
-                                    </span>
-                                    <span className="text-[#C9D1D9] text-xs flex-1 break-words">
-                                        {log.message}
-                                    </span>
-                                </div>
+                            {logs.map(log => (
+                                <LogEntry key={log.id} log={log} getLogColor={getLogColor} />
                             ))}
                             <div ref={consoleEndRef} />
                         </div>
