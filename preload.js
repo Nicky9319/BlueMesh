@@ -27,11 +27,14 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('api', {
       openDirectoryDialog: () => ipcRenderer.invoke('dialog:openDirectory'),
       readFolderStructure: (folderPath, options) => ipcRenderer.invoke('fs:readFolderStructure', folderPath, options),
+      refreshFolderStructure: (folderPath) => ipcRenderer.invoke('fs:refreshFolderStructure', folderPath),
       startWatching: (folderPath) => ipcRenderer.invoke('fs:startWatching', folderPath),
       stopWatching: (folderPath) => ipcRenderer.invoke('fs:stopWatching', folderPath),
       stopAllWatchers: () => ipcRenderer.invoke('fs:stopAllWatchers'),
       onFileSystemChange: (callback) => ipcRenderer.on('fs:changed', callback),
-      removeFileSystemListeners: () => ipcRenderer.removeAllListeners('fs:changed')
+      removeFileSystemListeners: () => ipcRenderer.removeAllListeners('fs:changed'),
+      onFolderStructureUpdate: (callback) => ipcRenderer.on('folderStructure:update', callback),
+      removeFolderStructureListeners: () => ipcRenderer.removeAllListeners('folderStructure:update')
     })
 
     contextBridge.exposeInMainWorld('db', {
@@ -59,11 +62,14 @@ else{
   window.api = {
     openDirectoryDialog: () => ipcRenderer.invoke('dialog:openDirectory'),
     readFolderStructure: (folderPath, options) => ipcRenderer.invoke('fs:readFolderStructure', folderPath, options),
+    refreshFolderStructure: (folderPath) => ipcRenderer.invoke('fs:refreshFolderStructure', folderPath),
     startWatching: (folderPath) => ipcRenderer.invoke('fs:startWatching', folderPath),
     stopWatching: (folderPath) => ipcRenderer.invoke('fs:stopWatching', folderPath),
     stopAllWatchers: () => ipcRenderer.invoke('fs:stopAllWatchers'),
     onFileSystemChange: (callback) => ipcRenderer.on('fs:changed', callback),
-    removeFileSystemListeners: () => ipcRenderer.removeAllListeners('fs:changed')
+    removeFileSystemListeners: () => ipcRenderer.removeAllListeners('fs:changed'),
+    onFolderStructureUpdate: (callback) => ipcRenderer.on('folderStructure:update', callback),
+    removeFolderStructureListeners: () => ipcRenderer.removeAllListeners('folderStructure:update')
   }
 
   window.db = {

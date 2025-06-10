@@ -17,9 +17,21 @@ let mainWindow;
 
 // Variables and constants END !!! ---------------------------------------------------------------------------------------------------
 
-
-
-
+// Helper function to serialize dates in folder structure
+function serializeFolderStructure(structure) {
+  if (!structure) return structure;
+  
+  const serialized = {
+    ...structure,
+    modified: structure.modified ? structure.modified.toISOString() : null
+  };
+  
+  if (structure.children) {
+    serialized.children = structure.children.map(child => serializeFolderStructure(child));
+  }
+  
+  return serialized;
+}
 
 // IPC Handle Section !!! ------------------------------------------------------------------------------------------------------
 
@@ -124,9 +136,96 @@ ipcMain.handle('fs:readFolderStructure', async (event, folderPath, options = {})
   try {
     const result = await readDirectory(folderPath);
     console.log('Folder structure read successfully');
+    
+    // Serialize dates before sending to renderer
+    const serializedResult = serializeFolderStructure(result);
+    
+    // Send folder structure to renderer to update Redux store
+    mainWindow.webContents.send('folderStructure:update', serializedResult);
+    
     return result;
   } catch (error) {
     console.error('Failed to read folder structure:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('fs:refreshFolderStructure', async (event, folderPath) => {
+  console.log('Refreshing folder structure for:', folderPath);
+  
+  try {
+    // Call the readDirectory function directly with default options
+    const { 
+      includeContent = false, 
+      maxDepth = 5, 
+      excludeHidden = true,
+      excludeNodeModules = true 
+    } = {};
+
+    async function readDirectory(dirPath, currentDepth = 0) {
+      if (currentDepth > maxDepth) return null;
+
+      try {
+        const stats = await fs.promises.stat(dirPath);
+        if (!stats.isDirectory()) return null;
+
+        const items = await fs.promises.readdir(dirPath);
+        const structure = {
+          name: path.basename(dirPath),
+          path: dirPath,
+          type: 'directory',
+          size: stats.size,
+          modified: stats.mtime,
+          children: []
+        };
+
+        for (const item of items) {
+          if (excludeHidden && item.startsWith('.')) continue;
+          if (excludeNodeModules && item === 'node_modules') continue;
+
+          const itemPath = path.join(dirPath, item);
+          
+          try {
+            const itemStats = await fs.promises.stat(itemPath);
+            
+            if (itemStats.isDirectory()) {
+              const subDir = await readDirectory(itemPath, currentDepth + 1);
+              if (subDir) structure.children.push(subDir);
+            } else {
+              const fileInfo = {
+                name: item,
+                path: itemPath,
+                type: 'file',
+                extension: path.extname(item),
+                size: itemStats.size,
+                modified: itemStats.mtime
+              };
+
+              structure.children.push(fileInfo);
+            }
+          } catch (itemError) {
+            console.warn(`Could not access ${itemPath}:`, itemError.message);
+          }
+        }
+
+        return structure;
+      } catch (error) {
+        console.error(`Error reading directory ${dirPath}:`, error);
+        throw error;
+      }
+    }
+
+    const result = await readDirectory(folderPath);
+    
+    // Serialize dates before sending to renderer
+    const serializedResult = serializeFolderStructure(result);
+    
+    // Send folder structure to renderer to update Redux store
+    mainWindow.webContents.send('folderStructure:update', serializedResult);
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to refresh folder structure:', error);
     throw error;
   }
 });
@@ -190,4 +289,3 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
-// App Section END !!! --------------------------------------------------------------------------------

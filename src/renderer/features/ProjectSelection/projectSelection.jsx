@@ -12,6 +12,7 @@ const ProjectSelection = () => {
         try {
             console.log('Attempting to open folder dialog...');
             console.log('window.electron:', window.electron);
+
             
             const result = await window.electron.ipcRenderer.invoke('dialog:openDirectory');
             console.log('Dialog result received:', result);
