@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     startServer,
@@ -10,20 +10,157 @@ import {
 
 const TopBar = () => {
     const dispatch = useDispatch();
-    const state = useSelector(selectServerStatus); // idle, loading, running
+    const state = useSelector(selectServerStatus);
+    const currentProjectPath = useSelector(state => state.project.currentProjectPath);
 
-    const handleStart = () => {
-        dispatch(startServer());
-        setTimeout(() => dispatch(serverStarted()), 1500); // Simulate loading
+    useEffect(() => {
+        // Check if window.api exists and has the required functions
+        if (!window.api) {
+            console.error('[TopBar] window.api is not available');
+            return;
+        }
+
+        // Set up server event listeners
+        const handleServerStarted = (event, data) => {
+            console.log('[TopBar] Server started event received:', data);
+            dispatch(serverStarted());
+            showNotification('✅ Server started successfully', 'success');
+        };
+
+        const handleServerStopped = (event, data) => {
+            console.log('[TopBar] Server stopped event received:', data);
+            dispatch(stopServer());
+            showNotification('⏹️ Server stopped', 'info');
+        };
+
+        const handleServerRestarted = (event, data) => {
+            console.log('[TopBar] Server restarted event received:', data);
+            dispatch(serverStarted());
+            showNotification('🔄 Server restarted successfully', 'success');
+        };
+
+        const handleServerFailed = (event, data) => {
+            console.log('[TopBar] Server failed event received:', data);
+            dispatch(serverFailed(data.error));
+            showNotification(`❌ ${data.message}`, 'error');
+        };
+
+        // Add event listeners with error checking
+        try {
+            if (window.api.onServerStarted) {
+                window.api.onServerStarted(handleServerStarted);
+            }
+            if (window.api.onServerStopped) {
+                window.api.onServerStopped(handleServerStopped);
+            }
+            if (window.api.onServerRestarted) {
+                window.api.onServerRestarted(handleServerRestarted);
+            }
+            if (window.api.onServerFailed) {
+                window.api.onServerFailed(handleServerFailed);
+            }
+        } catch (error) {
+            console.error('[TopBar] Error setting up event listeners:', error);
+        }
+
+        // Cleanup
+        return () => {
+            try {
+                if (window.api && window.api.removeServerListeners) {
+                    window.api.removeServerListeners();
+                }
+            } catch (error) {
+                console.error('[TopBar] Error during cleanup:', error);
+            }
+        };
+    }, [dispatch]);
+
+    const showNotification = (message, type = 'info') => {
+        // Simple alert for now - can be replaced with a toast notification system
+        const emoji = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+        alert(`${emoji} ${message}`);
     };
 
-    const handleRestart = () => {
+    const handleStart = async () => {
+        if (!currentProjectPath) {
+            showNotification('❌ No project selected', 'error');
+            return;
+        }
+
+        if (!window.api || !window.api.startServer) {
+            showNotification('❌ Server API not available', 'error');
+            return;
+        }
+
         dispatch(startServer());
-        setTimeout(() => dispatch(serverStarted()), 1500);
+        console.log('[TopBar] Starting server for project:', currentProjectPath);
+
+        try {
+            const response = await window.api.startServer(currentProjectPath);
+            console.log('[TopBar] Start server response:', response);
+            
+            if (!response.success) {
+                dispatch(serverFailed(response.error));
+                showNotification(`❌ ${response.message}`, 'error');
+            }
+            // Success is handled by the event listener
+        } catch (error) {
+            console.error('[TopBar] Start server error:', error);
+            dispatch(serverFailed(error.message));
+            showNotification(`❌ Failed to start server: ${error.message}`, 'error');
+        }
     };
 
-    const handleStop = () => {
-        dispatch(stopServer());
+    const handleRestart = async () => {
+        if (!currentProjectPath) {
+            showNotification('❌ No project selected', 'error');
+            return;
+        }
+
+        if (!window.api || !window.api.restartServer) {
+            showNotification('❌ Server API not available', 'error');
+            return;
+        }
+
+        dispatch(startServer()); // Set to loading state
+        console.log('[TopBar] Restarting server for project:', currentProjectPath);
+
+        try {
+            const response = await window.api.restartServer(currentProjectPath);
+            console.log('[TopBar] Restart server response:', response);
+            
+            if (!response.success) {
+                dispatch(serverFailed(response.error));
+                showNotification(`❌ ${response.message}`, 'error');
+            }
+            // Success is handled by the event listener
+        } catch (error) {
+            console.error('[TopBar] Restart server error:', error);
+            dispatch(serverFailed(error.message));
+            showNotification(`❌ Failed to restart server: ${error.message}`, 'error');
+        }
+    };
+
+    const handleStop = async () => {
+        console.log('[TopBar] Stopping server');
+
+        if (!window.api || !window.api.stopServer) {
+            showNotification('❌ Server API not available', 'error');
+            return;
+        }
+
+        try {
+            const response = await window.api.stopServer();
+            console.log('[TopBar] Stop server response:', response);
+            
+            if (!response.success) {
+                showNotification(`❌ ${response.message}`, 'error');
+            }
+            // Success is handled by the event listener
+        } catch (error) {
+            console.error('[TopBar] Stop server error:', error);
+            showNotification(`❌ Failed to stop server: ${error.message}`, 'error');
+        }
     };
 
     // Status text and color

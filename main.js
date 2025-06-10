@@ -14,6 +14,8 @@ import path from 'path'
 // Variables and constants !!! ---------------------------------------------------------------------------------------------------
 
 let mainWindow;
+let serverProcess = null;
+let serverState = 'idle'; // Track server state in main process
 
 // Variables and constants END !!! ---------------------------------------------------------------------------------------------------
 
@@ -230,9 +232,195 @@ ipcMain.handle('fs:refreshFolderStructure', async (event, folderPath) => {
   }
 });
 
+// Server management handlers
+ipcMain.handle('server:start', async (event, projectPath) => {
+  console.log('[MAIN] Server start requested for:', projectPath);
+  
+  try {
+    if (serverState !== 'idle') {
+      throw new Error('Server is already running or starting');
+    }
+    
+    serverState = 'loading';
+    console.log('[MAIN] Server state changed to: loading');
+    
+    // Simulate server startup process (replace with actual server logic)
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // TODO: Add actual server startup logic here
+    // For now, we'll simulate success
+    const success = Math.random() > 0.2; // 80% success rate for demo
+    
+    if (success) {
+      serverState = 'running';
+      console.log('[MAIN] Server started successfully');
+      
+      // Notify renderer of successful start
+      mainWindow.webContents.send('server:started', {
+        success: true,
+        message: 'Server started successfully',
+        projectPath
+      });
+      
+      return { 
+        success: true, 
+        message: 'Server started successfully',
+        state: 'running'
+      };
+    } else {
+      serverState = 'idle';
+      console.log('[MAIN] Server failed to start');
+      
+      // Notify renderer of failure
+      mainWindow.webContents.send('server:failed', {
+        success: false,
+        message: 'Failed to start server',
+        error: 'Simulated startup failure'
+      });
+      
+      return { 
+        success: false, 
+        message: 'Failed to start server',
+        error: 'Simulated startup failure',
+        state: 'idle'
+      };
+    }
+  } catch (error) {
+    serverState = 'idle';
+    console.error('[MAIN] Server start error:', error);
+    
+    mainWindow.webContents.send('server:failed', {
+      success: false,
+      message: error.message,
+      error: error.message
+    });
+    
+    return { 
+      success: false, 
+      message: error.message,
+      error: error.message,
+      state: 'idle'
+    };
+  }
+});
+
+ipcMain.handle('server:stop', async (event) => {
+  console.log('[MAIN] Server stop requested');
+  
+  try {
+    if (serverState !== 'running') {
+      throw new Error('Server is not running');
+    }
+    
+    // TODO: Add actual server shutdown logic here
+    // For now, we'll simulate shutdown
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    serverState = 'idle';
+    console.log('[MAIN] Server stopped successfully');
+    
+    // Notify renderer of successful stop
+    mainWindow.webContents.send('server:stopped', {
+      success: true,
+      message: 'Server stopped successfully'
+    });
+    
+    return { 
+      success: true, 
+      message: 'Server stopped successfully',
+      state: 'idle'
+    };
+  } catch (error) {
+    console.error('[MAIN] Server stop error:', error);
+    
+    return { 
+      success: false, 
+      message: error.message,
+      error: error.message,
+      state: serverState
+    };
+  }
+});
+
+ipcMain.handle('server:restart', async (event, projectPath) => {
+  console.log('[MAIN] Server restart requested');
+  
+  try {
+    if (serverState !== 'running') {
+      throw new Error('Server is not running');
+    }
+    
+    serverState = 'loading';
+    console.log('[MAIN] Server state changed to: loading (restarting)');
+    
+    // TODO: Add actual server restart logic here
+    // For now, simulate restart
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const success = Math.random() > 0.1; // 90% success rate for restart
+    
+    if (success) {
+      serverState = 'running';
+      console.log('[MAIN] Server restarted successfully');
+      
+      // Notify renderer of successful restart
+      mainWindow.webContents.send('server:restarted', {
+        success: true,
+        message: 'Server restarted successfully',
+        projectPath
+      });
+      
+      return { 
+        success: true, 
+        message: 'Server restarted successfully',
+        state: 'running'
+      };
+    } else {
+      serverState = 'idle';
+      console.log('[MAIN] Server failed to restart');
+      
+      // Notify renderer of failure
+      mainWindow.webContents.send('server:failed', {
+        success: false,
+        message: 'Failed to restart server',
+        error: 'Simulated restart failure'
+      });
+      
+      return { 
+        success: false, 
+        message: 'Failed to restart server',
+        error: 'Simulated restart failure',
+        state: 'idle'
+      };
+    }
+  } catch (error) {
+    serverState = 'idle';
+    console.error('[MAIN] Server restart error:', error);
+    
+    mainWindow.webContents.send('server:failed', {
+      success: false,
+      message: error.message,
+      error: error.message
+    });
+    
+    return { 
+      success: false, 
+      message: error.message,
+      error: error.message,
+      state: 'idle'
+    };
+  }
+});
+
+ipcMain.handle('server:getStatus', async (event) => {
+  console.log('[MAIN] Server status requested:', serverState);
+  return { 
+    state: serverState,
+    success: true
+  };
+});
+
 // IPC Handle Section END !!! ---------------------------------------------------------------------------------------------------
-
-
 
 // App Section !!! -------------------------------------------------------------------------------------
 
@@ -289,3 +477,5 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+// App Section END !!! -------------------------------------------------------------------------------------

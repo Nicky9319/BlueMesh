@@ -34,7 +34,22 @@ if (process.contextIsolated) {
       onFileSystemChange: (callback) => ipcRenderer.on('fs:changed', callback),
       removeFileSystemListeners: () => ipcRenderer.removeAllListeners('fs:changed'),
       onFolderStructureUpdate: (callback) => ipcRenderer.on('folderStructure:update', callback),
-      removeFolderStructureListeners: () => ipcRenderer.removeAllListeners('folderStructure:update')
+      removeFolderStructureListeners: () => ipcRenderer.removeAllListeners('folderStructure:update'),
+      // Server management APIs
+      startServer: (projectPath) => ipcRenderer.invoke('server:start', projectPath),
+      stopServer: () => ipcRenderer.invoke('server:stop'),
+      restartServer: (projectPath) => ipcRenderer.invoke('server:restart', projectPath),
+      getServerStatus: () => ipcRenderer.invoke('server:getStatus'),
+      onServerStarted: (callback) => ipcRenderer.on('server:started', callback),
+      onServerStopped: (callback) => ipcRenderer.on('server:stopped', callback),
+      onServerRestarted: (callback) => ipcRenderer.on('server:restarted', callback),
+      onServerFailed: (callback) => ipcRenderer.on('server:failed', callback),
+      removeServerListeners: () => {
+        ipcRenderer.removeAllListeners('server:started');
+        ipcRenderer.removeAllListeners('server:stopped');
+        ipcRenderer.removeAllListeners('server:restarted');
+        ipcRenderer.removeAllListeners('server:failed');
+      }
     })
 
     contextBridge.exposeInMainWorld('db', {
@@ -69,7 +84,22 @@ else{
     onFileSystemChange: (callback) => ipcRenderer.on('fs:changed', callback),
     removeFileSystemListeners: () => ipcRenderer.removeAllListeners('fs:changed'),
     onFolderStructureUpdate: (callback) => ipcRenderer.on('folderStructure:update', callback),
-    removeFolderStructureListeners: () => ipcRenderer.removeAllListeners('folderStructure:update')
+    removeFolderStructureListeners: () => ipcRenderer.removeAllListeners('folderStructure:update'),
+    // Server management APIs
+    startServer: (projectPath) => ipcRenderer.invoke('server:start', projectPath),
+    stopServer: () => ipcRenderer.invoke('server:stop'),
+    restartServer: (projectPath) => ipcRenderer.invoke('server:restart', projectPath),
+    getServerStatus: () => ipcRenderer.invoke('server:getStatus'),
+    onServerStarted: (callback) => ipcRenderer.on('server:started', callback),
+    onServerStopped: (callback) => ipcRenderer.on('server:stopped', callback),
+    onServerRestarted: (callback) => ipcRenderer.on('server:restarted', callback),
+    onServerFailed: (callback) => ipcRenderer.on('server:failed', callback),
+    removeServerListeners: () => {
+      ipcRenderer.removeAllListeners('server:started');
+      ipcRenderer.removeAllListeners('server:stopped');
+      ipcRenderer.removeAllListeners('server:restarted');
+      ipcRenderer.removeAllListeners('server:failed');
+    }
   }
 
   window.db = {
