@@ -13,20 +13,29 @@ const ProjectSelection = () => {
             console.log('Attempting to open folder dialog...');
             console.log('window.electron:', window.electron);
 
-            
             const result = await window.electron.ipcRenderer.invoke('dialog:openDirectory');
             console.log('Dialog result received:', result);
             
             if (result && !result.canceled && result.filePaths.length > 0) {
                 const folderPath = result.filePaths[0];
-                setSelectedPath(folderPath);
-                
-                // Store in Redux
-                dispatch(setCurrentProjectPath(folderPath));
-                console.log('Stored in Redux:', folderPath);
-                
-                // Navigate to dashboard
-                navigate('/dashboard');
+
+                // Check if services.json exists in the selected folder
+                const hasServicesJson = await window.electron.ipcRenderer.invoke(
+                    'fs:checkFileExists',
+                    folderPath,
+                    'services.json'
+                );
+
+                if (hasServicesJson) {
+                    setSelectedPath(folderPath);
+                    // Store in Redux
+                    dispatch(setCurrentProjectPath(folderPath));
+                    console.log('Stored in Redux:', folderPath);
+                    // Navigate to dashboard
+                    navigate('/dashboard');
+                } else {
+                    alert('The selected folder does not contain a services.json file. Please select the correct project folder.');
+                }
             }
         } catch (error) {
             console.error('Error selecting folder:', error);

@@ -420,6 +420,21 @@ ipcMain.handle('server:getStatus', async (event) => {
   };
 });
 
+// Add this IPC handler before the App Section
+ipcMain.handle('fs:checkFileExists', async (event, folderPath, fileName) => {
+  try {
+    const filePath = path.join(folderPath, fileName);
+    const exists = await fs.promises
+      .access(filePath, fs.constants.F_OK)
+      .then(() => true)
+      .catch(() => false);
+    return exists;
+  } catch (error) {
+    console.error('Error checking file existence:', error);
+    return false;
+  }
+});
+
 // IPC Handle Section END !!! ---------------------------------------------------------------------------------------------------
 
 // App Section !!! -------------------------------------------------------------------------------------
