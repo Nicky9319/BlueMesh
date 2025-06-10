@@ -35,17 +35,17 @@ const ProjectSelection = () => {
     };
     
     return (
-        <div className="flex h-screen items-center justify-center" style={{ backgroundColor: '#121317' }}>
+        <div className="flex h-screen items-center justify-center bg-[#0D1117]">
             <div className="text-center">
-                <h1 className="text-3xl font-bold text-white mb-8">Select Project Folder</h1>
+                <h1 className="text-3xl font-bold text-[#C9D1D9] mb-8">Select Project Folder</h1>
                 <button
                     onClick={handleSelectFolder}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
+                    className="bg-[#1F6FEB] hover:bg-[#58A6FF] text-[#C9D1D9] font-bold py-3 px-6 rounded-lg transition-colors duration-200"
                 >
                     Open Folder
                 </button>
                 {selectedPath && (
-                    <p className="text-gray-300 mt-4">Selected: {selectedPath}</p>
+                    <p className="text-[#8B949E] mt-4">Selected: {selectedPath}</p>
                 )}
             </div>
         </div>
