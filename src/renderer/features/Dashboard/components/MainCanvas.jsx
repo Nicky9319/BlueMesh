@@ -22,10 +22,6 @@ const MainCanvas = ({ selectedTabId, currentProjectPath }) => {
                 <TopBar />
             </div>
             <div className="flex-1 p-5">
-                <div className="text-2xl font-bold mb-4 text-[#C9D1D9]">
-                    {selectedTabTitle}
-                </div>
-                
                 
                 {selectedTabId === 'directory' && (
                     <Directory />

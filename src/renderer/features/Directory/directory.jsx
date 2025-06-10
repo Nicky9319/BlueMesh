@@ -96,7 +96,12 @@ const Dashboard = () => {
     };
     
     return (
+        <>
+        <div className="`font-bold mb-4 text-[#C9D1D9] text-3xl border-b border-[#30363D] pb-2">
+                Directory Explorer
+            </div>
         <div className="flex h-screen font-sans bg-gray-900 text-gray-300">
+            
             {/* Resizable Sidebar */}
             <Sidebar
                 folderStructure={folderStructure}
@@ -136,6 +141,7 @@ const Dashboard = () => {
                 )}
             </div>
         </div>
+        </>
     );
 };
 
