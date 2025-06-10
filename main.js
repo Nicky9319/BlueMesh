@@ -14,7 +14,6 @@ import path from 'path'
 // Variables and constants !!! ---------------------------------------------------------------------------------------------------
 
 let mainWindow;
-let fileWatchers = new Map(); // Store active watchers
 
 // Variables and constants END !!! ---------------------------------------------------------------------------------------------------
 
@@ -132,64 +131,6 @@ ipcMain.handle('fs:readFolderStructure', async (event, folderPath, options = {})
   }
 });
 
-ipcMain.handle('fs:startWatching', async (event, folderPath) => {
-  console.log('Starting file watcher for:', folderPath);
-  
-  // Stop existing watcher if any
-  if (fileWatchers.has(folderPath)) {
-    fileWatchers.get(folderPath).close();
-    fileWatchers.delete(folderPath);
-  }
-
-  try {
-    const watcher = fs.watch(folderPath, { recursive: true }, (eventType, filename) => {
-      console.log(`File system change detected: ${eventType} - ${filename}`);
-      
-      // Debounce multiple rapid changes
-      clearTimeout(watcher.debounceTimer);
-      watcher.debounceTimer = setTimeout(() => {
-        mainWindow.webContents.send('fs:changed', {
-          eventType,
-          filename,
-          folderPath
-        });
-      }, 300); // 300ms debounce
-    });
-
-    fileWatchers.set(folderPath, watcher);
-    console.log('File watcher started successfully');
-    return { success: true };
-  } catch (error) {
-    console.error('Failed to start file watcher:', error);
-    throw error;
-  }
-});
-
-ipcMain.handle('fs:stopWatching', async (event, folderPath) => {
-  console.log('Stopping file watcher for:', folderPath);
-  
-  if (fileWatchers.has(folderPath)) {
-    fileWatchers.get(folderPath).close();
-    fileWatchers.delete(folderPath);
-    console.log('File watcher stopped successfully');
-    return { success: true };
-  }
-  
-  return { success: false, message: 'No active watcher found' };
-});
-
-ipcMain.handle('fs:stopAllWatchers', async () => {
-  console.log('Stopping all file watchers');
-  
-  for (const [folderPath, watcher] of fileWatchers) {
-    watcher.close();
-    console.log(`Stopped watcher for: ${folderPath}`);
-  }
-  
-  fileWatchers.clear();
-  return { success: true };
-});
-
 // IPC Handle Section END !!! ---------------------------------------------------------------------------------------------------
 
 
@@ -245,15 +186,8 @@ app.whenReady().then(() => {
 
 // Quit when all windows are closed, except on macOS
 app.on('window-all-closed', () => {
-  // Clean up file watchers before closing
-  for (const watcher of fileWatchers.values()) {
-    watcher.close();
-  }
-  fileWatchers.clear();
-  
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
-
 // App Section END !!! --------------------------------------------------------------------------------

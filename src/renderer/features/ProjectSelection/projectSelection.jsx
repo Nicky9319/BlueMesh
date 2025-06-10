@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setCurrentProjectPath } from '../../../../store/ProjectSlice';
+import { setCurrentProjectPath } from '../../../../store/ProjectInfoSlice';
 
 const ProjectSelection = () => {
     const [selectedPath, setSelectedPath] = useState('');
