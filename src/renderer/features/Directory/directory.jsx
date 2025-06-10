@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setFolderStructure, setLoadingStructure } from '../../../../store/ProjectInfoSlice';
-import Sidebar from '../FolderStructure/components/Sidebar';
+import { setFolderStructure, setLoadingStructure } from '../../../../store/ServerInfoSlice';
+import Sidebar from './components/Sidebar';
 
 const Dashboard = () => {
     const navigate = useNavigate();

@@ -1,5 +1,9 @@
 import React from 'react';
 import TopBar from './TopBar';
+// Import the feature components
+import Directory from '../../Directory/directory';
+import Console from '../../Console/console';
+import ArchitectureCanvas from '../../ArchitectureCanvas/architecture-canvas';
 
 const MainCanvas = ({ selectedTabId, currentProjectPath }) => {
     // Map tab IDs to their titles for display
@@ -27,6 +31,15 @@ const MainCanvas = ({ selectedTabId, currentProjectPath }) => {
                         <p className="text-[#8B949E] mb-2">Current Project:</p>
                         <p className="text-[#C9D1D9] font-mono break-all">{currentProjectPath}</p>
                     </div>
+                )}
+                {selectedTabId === 'directory' && (
+                    <Directory />
+                )}
+                {selectedTabId === 'console' && (
+                    <Console />
+                )}
+                {selectedTabId === 'architecture' && (
+                    <ArchitectureCanvas />
                 )}
             </div>
         </div>
