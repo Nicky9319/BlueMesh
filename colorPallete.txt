@@ -1,0 +1,9 @@
+Background	#0D1117	Ultra-dark grayish black (same as GitHub Dark) — comfortable on eyes
+Primary Accent	#1F6FEB	Vivid ocean blue — ideal for buttons, highlights
+Secondary Accent	#58A6FF	Lighter blue — for hover states, minor CTAs
+Text (Primary)	#C9D1D9	Light gray — very readable on dark bg
+Text (Muted)	#8B949E	For labels, secondary text
+Success (Green)	#3FB950	For status badges, test passes, etc.
+Warning (Yellow)	#D29922	Warnings, alerts
+Error (Red)	#F85149	Errors, failures
+Border / Divider	#30363D	Subtle, non-intrusive
