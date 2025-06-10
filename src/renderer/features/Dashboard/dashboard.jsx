@@ -4,16 +4,14 @@ import ExplorerPanel from './components/ExplorerPanel';
 import MainCanvas from './components/MainCanvas';
 
 const tabs = [
-    { id: 'explorer', icon: '📁', title: 'Explorer', component: 'sidebar' },
-    { id: 'search', icon: '🔍', title: 'Search', component: 'search' },
-    { id: 'git', icon: '🌿', title: 'Source Control', component: 'git' },
-    { id: 'debug', icon: '🐛', title: 'Run and Debug', component: 'debug' },
-    { id: 'canvas', icon: '🎨', title: 'Architecture Canvas', component: 'canvas' }
+    { id: 'directory', icon: '📂', title: 'Directory' },
+    { id: 'console', icon: '🖥️', title: 'Console' },
+    { id: 'architecture', icon: '🏛️', title: 'Architecture' }
 ];
 
 const Dashboard = () => {
     const currentProjectPath = useSelector(state => state.project.currentProjectPath);
-    const [activeTab, setActiveTab] = useState('explorer');
+    const [activeTab, setActiveTab] = useState('directory');
     
     const handleTabClick = (tabId) => {
         setActiveTab(tabId);
@@ -24,7 +22,6 @@ const Dashboard = () => {
     return (
         <div className="flex h-screen font-sans bg-gray-900 text-gray-300">
             <ExplorerPanel
-                tabs={tabs}
                 activeTab={activeTab}
                 onTabClick={handleTabClick}
             />

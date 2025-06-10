@@ -1,6 +1,12 @@
 import React from 'react';
 
-const ExplorerPanel = ({ tabs, activeTab, onTabClick }) => {
+const tabs = [
+    { id: 'directory', icon: '📂', title: 'Directory' },
+    { id: 'console', icon: '🖥️', title: 'Console' },
+    { id: 'architecture', icon: '🏛️', title: 'Architecture' }
+];
+
+const ExplorerPanel = ({ activeTab, onTabClick }) => {
     return (
         <div className="w-12 bg-gray-800 border-r border-gray-700 flex flex-col">
             {/* Tab Icons */}
@@ -19,7 +25,7 @@ const ExplorerPanel = ({ tabs, activeTab, onTabClick }) => {
                         {activeTab === tab.id && (
                             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
                         )}
-                        {tab.icon}
+                        <span aria-label={tab.title} role="img">{tab.icon}</span>
                     </button>
                 ))}
             </div>
