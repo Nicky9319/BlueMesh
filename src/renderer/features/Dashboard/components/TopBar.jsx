@@ -69,6 +69,8 @@ const TopBar = () => {
             console.error('[TopBar] Error setting up event listeners:', error);
         }
 
+
+
         // Cleanup
         return () => {
             try {
@@ -80,6 +82,29 @@ const TopBar = () => {
             }
         };
     }, [dispatch]);
+
+    useEffect(() => {
+        const handleServerFileReload = (event, data) => {
+            console.log("server reload Event Triggered");
+            // You can add more logic here to react to the file reload,
+            // for example, dispatching an action to update state or re-fetch data.
+        };
+
+        if (window.api && window.api.onServerFileReload) {
+            window.api.onServerFileReload(handleServerFileReload);
+            console.log('[TopBar] Subscribed to server:file-reload event');
+        } else {
+            console.warn('[TopBar] window.api.onServerFileReload is not available');
+        }
+
+        // Cleanup listener on unmount
+        return () => {
+            if (window.api && window.api.removeServerFileReloadListener) {
+                window.api.removeServerFileReloadListener();
+                console.log('[TopBar] Unsubscribed from server:file-reload event');
+            }
+        };
+    }, []);
 
     const handleStart = async () => {
         if (!currentProjectPath) {
@@ -98,7 +123,7 @@ const TopBar = () => {
         try {
             const response = await window.api.startServer(currentProjectPath);
             console.log('[TopBar] Start server response:', response);
-            
+
             if (!response.success) {
                 dispatch(serverFailed(response.error));
                 showNotification(`${response.message}`, 'error');
@@ -128,7 +153,7 @@ const TopBar = () => {
         try {
             const response = await window.api.restartServer(currentProjectPath);
             console.log('[TopBar] Restart server response:', response);
-            
+
             if (!response.success) {
                 dispatch(serverFailed(response.error));
                 showNotification(`❌ ${response.message}`, 'error');
@@ -152,7 +177,7 @@ const TopBar = () => {
         try {
             const response = await window.api.stopServer();
             console.log('[TopBar] Stop server response:', response);
-            
+
             if (!response.success) {
                 showNotification(`❌ ${response.message}`, 'error');
             }
@@ -194,15 +219,15 @@ const TopBar = () => {
                         title="Start"
                     >
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4.5 3.5V12.5L12.5 8L4.5 3.5Z" fill="#3FB950" stroke="#3FB950" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M4.5 3.5V12.5L12.5 8L4.5 3.5Z" fill="#3FB950" stroke="#3FB950" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                     </button>
                 )}
                 {state === 'loading' && (
                     <div className="flex items-center gap-2 text-[#58A6FF] font-medium text-sm h-7 px-2">
                         <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="#58A6FF" strokeWidth="4" fill="none"/>
-                            <path className="opacity-75" fill="#58A6FF" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"/>
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="#58A6FF" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="#58A6FF" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" />
                         </svg>
                     </div>
                 )}
@@ -215,10 +240,10 @@ const TopBar = () => {
                             title="Restart"
                         >
                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2" stroke="#D29922" strokeWidth="1.5" strokeLinecap="round"/>
-                                <path d="M8 5L11 2L8 5Z" fill="#D29922"/>
-                                <path d="M8 5L11 2" stroke="#D29922" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M11 2L8 5" stroke="#D29922" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2" stroke="#D29922" strokeWidth="1.5" strokeLinecap="round" />
+                                <path d="M8 5L11 2L8 5Z" fill="#D29922" />
+                                <path d="M8 5L11 2" stroke="#D29922" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M11 2L8 5" stroke="#D29922" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </button>
                         <button
@@ -228,7 +253,7 @@ const TopBar = () => {
                             title="Stop"
                         >
                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="3" y="3" width="10" height="10" rx="1" stroke="#F85149" strokeWidth="1.5"/>
+                                <rect x="3" y="3" width="10" height="10" rx="1" stroke="#F85149" strokeWidth="1.5" />
                             </svg>
                         </button>
                     </>

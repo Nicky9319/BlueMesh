@@ -51,6 +51,7 @@ const tabs = [
     }
 ];
 
+
 const ExplorerPanel = ({ activeTab, onTabClick }) => {
     return (
         <div className="w-12 bg-[#0D1117] border-r border-[#30363D] flex flex-col">

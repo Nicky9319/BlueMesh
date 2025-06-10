@@ -500,6 +500,16 @@ app.whenReady().then(() => {
       createWindow()
     }
   })
+
+  setTimeout(() => {
+    console.log('Triggering server reload event from main process');
+     if (mainWindow && mainWindow.webContents) {
+      mainWindow.webContents.send('server:file-reload', { message: 'Initial file reload trigger from main process' });
+      console.log('[MAIN] Sent server:file-reload event to renderer.');
+    }
+  }, 20000);
+
+  
 })
 
 // Quit when all windows are closed, except on macOS

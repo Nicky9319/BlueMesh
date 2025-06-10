@@ -44,12 +44,14 @@ if (process.contextIsolated) {
       onServerStopped: (callback) => ipcRenderer.on('server:stopped', callback),
       onServerRestarted: (callback) => ipcRenderer.on('server:restarted', callback),
       onServerFailed: (callback) => ipcRenderer.on('server:failed', callback),
+      onServerFileReload: (callback) => ipcRenderer.on('server:file-reload', callback),
       removeServerListeners: () => {
         ipcRenderer.removeAllListeners('server:started');
         ipcRenderer.removeAllListeners('server:stopped');
         ipcRenderer.removeAllListeners('server:restarted');
         ipcRenderer.removeAllListeners('server:failed');
-      }
+      },
+      removeServerFileReloadListener: () => ipcRenderer.removeAllListeners('server:file-reload')
     })
 
     contextBridge.exposeInMainWorld('db', {
@@ -94,12 +96,14 @@ else{
     onServerStopped: (callback) => ipcRenderer.on('server:stopped', callback),
     onServerRestarted: (callback) => ipcRenderer.on('server:restarted', callback),
     onServerFailed: (callback) => ipcRenderer.on('server:failed', callback),
+    onServerFileReload: (callback) => ipcRenderer.on('server:file-reload', callback),
     removeServerListeners: () => {
       ipcRenderer.removeAllListeners('server:started');
       ipcRenderer.removeAllListeners('server:stopped');
       ipcRenderer.removeAllListeners('server:restarted');
       ipcRenderer.removeAllListeners('server:failed');
-    }
+    },
+    removeServerFileReloadListener: () => ipcRenderer.removeAllListeners('server:file-reload')
   }
 
   window.db = {
