@@ -82,7 +82,7 @@ const ServiceCard = ({ service }) => {
                 {service.ServiceHttpHost && service.ServiceHttpPort && (
                     <div className="bg-[#30363D] rounded p-2">
                         <div className="flex items-center justify-between mb-1">
-                            <span className="text-[#8B949E] text-xs font-medium">HTTP Endpoint:</span>
+                            <span className="text-[#8B949E] text-xs font-medium">HTTP Server Host and Port:</span>
                             <span className="text-[#3FB950] text-xs">●</span>
                         </div>
                         <div className="text-[#58A6FF] text-xs font-mono">
