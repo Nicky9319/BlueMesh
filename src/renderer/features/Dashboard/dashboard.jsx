@@ -74,6 +74,7 @@ const Dashboard = () => {
     const [folderStructure, setFolderStructure] = useState(null);
     const [loading, setLoading] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [isWatching, setIsWatching] = useState(false);
     
     useEffect(() => {
         console.log('Dashboard loaded - Project path from Redux:', currentProjectPath);
@@ -81,8 +82,33 @@ const Dashboard = () => {
         
         if (currentProjectPath && isProjectLoaded) {
             loadFolderStructure();
+            startFileWatching();
         }
+
+        // Cleanup on unmount
+        return () => {
+            stopFileWatching();
+        };
     }, [currentProjectPath, isProjectLoaded]);
+
+    useEffect(() => {
+        // Set up file system change listener
+        const handleFileSystemChange = (event, changeData) => {
+            console.log('File system change detected:', changeData);
+            
+            // Auto-refresh folder structure when changes occur
+            setTimeout(() => {
+                loadFolderStructure();
+            }, 500); // Small delay to ensure file operations are complete
+        };
+
+        window.api.onFileSystemChange(handleFileSystemChange);
+
+        // Cleanup listener on unmount
+        return () => {
+            window.api.removeFileSystemListeners();
+        };
+    }, []);
     
     const loadFolderStructure = async () => {
         if (!currentProjectPath) return;
@@ -101,6 +127,38 @@ const Dashboard = () => {
             console.error('Failed to load folder structure:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const startFileWatching = async () => {
+        if (!currentProjectPath || isWatching) return;
+
+        try {
+            await window.api.startWatching(currentProjectPath);
+            setIsWatching(true);
+            console.log('File watching started for:', currentProjectPath);
+        } catch (error) {
+            console.error('Failed to start file watching:', error);
+        }
+    };
+
+    const stopFileWatching = async () => {
+        if (!isWatching) return;
+
+        try {
+            await window.api.stopAllWatchers();
+            setIsWatching(false);
+            console.log('File watching stopped');
+        } catch (error) {
+            console.error('Failed to stop file watching:', error);
+        }
+    };
+
+    const toggleFileWatching = async () => {
+        if (isWatching) {
+            await stopFileWatching();
+        } else {
+            await startFileWatching();
         }
     };
     
@@ -123,6 +181,7 @@ const Dashboard = () => {
     };
     
     const handleBackToSelection = () => {
+        stopFileWatching(); // Stop watching when leaving dashboard
         navigate('/');
     };
     
@@ -134,14 +193,31 @@ const Dashboard = () => {
                 <div className="p-3 bg-gray-750 border-b border-gray-700 flex justify-between items-center">
                     <h3 className="m-0 text-sm font-semibold uppercase text-gray-300">
                         Explorer
+                        {isWatching && (
+                            <span className="ml-2 text-green-400 text-xs">●</span>
+                        )}
                     </h3>
-                    <button 
-                        onClick={loadFolderStructure} 
-                        disabled={loading}
-                        className="bg-transparent border-none text-gray-300 cursor-pointer p-1 rounded text-base hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {loading ? '⟳' : '↻'}
-                    </button>
+                    <div className="flex gap-1">
+                        <button 
+                            onClick={toggleFileWatching}
+                            className={`bg-transparent border-none cursor-pointer p-1 rounded text-base ${
+                                isWatching 
+                                    ? 'text-green-400 hover:bg-green-900' 
+                                    : 'text-gray-300 hover:bg-gray-700'
+                            }`}
+                            title={isWatching ? 'Stop auto-refresh' : 'Start auto-refresh'}
+                        >
+                            {isWatching ? '👁️' : '👁️‍🗨️'}
+                        </button>
+                        <button 
+                            onClick={loadFolderStructure} 
+                            disabled={loading}
+                            className="bg-transparent border-none text-gray-300 cursor-pointer p-1 rounded text-base hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Refresh manually"
+                        >
+                            {loading ? '⟳' : '↻'}
+                        </button>
+                    </div>
                 </div>
                 
                 {/* File Tree */}
@@ -167,7 +243,12 @@ const Dashboard = () => {
             <div className="flex-1 p-5 bg-gray-900 text-gray-300 overflow-y-auto">
                 {/* Content Header */}
                 <div className="flex justify-between items-center mb-5 pb-2.5 border-b border-gray-700">
-                    <h2 className="m-0 text-white text-xl">Current Project</h2>
+                    <h2 className="m-0 text-white text-xl">
+                        Current Project
+                        {isWatching && (
+                            <span className="ml-2 text-sm text-green-400">(Auto-refresh enabled)</span>
+                        )}
+                    </h2>
                     <button 
                         onClick={handleBackToSelection}
                         className="px-4 py-2 bg-blue-600 text-white border-none rounded cursor-pointer text-sm hover:bg-blue-700"

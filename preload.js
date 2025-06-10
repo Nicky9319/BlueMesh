@@ -18,13 +18,20 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electron', {
       ...electronAPI,
       ipcRenderer: {
-        invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args)
+        invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args),
+        on: (channel, func) => ipcRenderer.on(channel, func),
+        removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel)
       }
     })
 
     contextBridge.exposeInMainWorld('api', {
       openDirectoryDialog: () => ipcRenderer.invoke('dialog:openDirectory'),
-      readFolderStructure: (folderPath, options) => ipcRenderer.invoke('fs:readFolderStructure', folderPath, options)
+      readFolderStructure: (folderPath, options) => ipcRenderer.invoke('fs:readFolderStructure', folderPath, options),
+      startWatching: (folderPath) => ipcRenderer.invoke('fs:startWatching', folderPath),
+      stopWatching: (folderPath) => ipcRenderer.invoke('fs:stopWatching', folderPath),
+      stopAllWatchers: () => ipcRenderer.invoke('fs:stopAllWatchers'),
+      onFileSystemChange: (callback) => ipcRenderer.on('fs:changed', callback),
+      removeFileSystemListeners: () => ipcRenderer.removeAllListeners('fs:changed')
     })
 
     contextBridge.exposeInMainWorld('db', {
@@ -43,13 +50,20 @@ else{
   window.electron = {
     ...electronAPI,
     ipcRenderer: {
-      invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args)
+      invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args),
+      on: (channel, func) => ipcRenderer.on(channel, func),
+      removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel)
     }
   }
 
   window.api = {
     openDirectoryDialog: () => ipcRenderer.invoke('dialog:openDirectory'),
-    readFolderStructure: (folderPath, options) => ipcRenderer.invoke('fs:readFolderStructure', folderPath, options)
+    readFolderStructure: (folderPath, options) => ipcRenderer.invoke('fs:readFolderStructure', folderPath, options),
+    startWatching: (folderPath) => ipcRenderer.invoke('fs:startWatching', folderPath),
+    stopWatching: (folderPath) => ipcRenderer.invoke('fs:stopWatching', folderPath),
+    stopAllWatchers: () => ipcRenderer.invoke('fs:stopAllWatchers'),
+    onFileSystemChange: (callback) => ipcRenderer.on('fs:changed', callback),
+    removeFileSystemListeners: () => ipcRenderer.removeAllListeners('fs:changed')
   }
 
   window.db = {
