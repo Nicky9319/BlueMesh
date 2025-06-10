@@ -435,6 +435,22 @@ ipcMain.handle('fs:checkFileExists', async (event, folderPath, fileName) => {
   }
 });
 
+ipcMain.handle('fs:readFile', async (event, folderPath, fileName) => {
+  try {
+    const filePath = path.join(folderPath, fileName);
+    const content = await fs.promises.readFile(filePath, 'utf8');
+    // Try to parse as JSON, fallback to string if not JSON
+    try {
+      return JSON.parse(content);
+    } catch {
+      return content;
+    }
+  } catch (error) {
+    console.error('Error reading file:', error);
+    throw error;
+  }
+});
+
 // IPC Handle Section END !!! ---------------------------------------------------------------------------------------------------
 
 // App Section !!! -------------------------------------------------------------------------------------

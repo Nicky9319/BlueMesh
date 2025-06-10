@@ -1,13 +1,29 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setCurrentProjectPath } from '../../../../store/ServerInfoSlice';
+import { setCurrentProjectPath, setServicesJson } from '../../../../store/ServerInfoSlice';
 
 const ProjectSelection = () => {
     const [selectedPath, setSelectedPath] = useState('');
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    
+
+    // Function to read and store services.json using main process
+    const readAndStoreServicesJson = async (folderPath) => {
+        try {
+            const servicesJsonContent = await window.electron.ipcRenderer.invoke(
+                'fs:readFile',
+                folderPath,
+                'services.json'
+            );
+            dispatch(setServicesJson(servicesJsonContent));
+            // console.log('servicesJson stored in Redux:', servicesJsonContent);
+        } catch (error) {
+            alert('Failed to read services.json: ' + error.message);
+            throw error;
+        }
+    };
+
     const handleSelectFolder = async () => {
         try {
             console.log('Attempting to open folder dialog...');
@@ -28,11 +44,14 @@ const ProjectSelection = () => {
 
                 if (hasServicesJson) {
                     setSelectedPath(folderPath);
-                    // Store in Redux
                     dispatch(setCurrentProjectPath(folderPath));
-                    console.log('Stored in Redux:', folderPath);
-                    // Navigate to dashboard
-                    navigate('/dashboard');
+                    // Read and store services.json, then navigate
+                    try {
+                        await readAndStoreServicesJson(folderPath);
+                        navigate('/dashboard');
+                    } catch {
+                        // Error already handled in readAndStoreServicesJson
+                    }
                 } else {
                     alert('The selected folder does not contain a services.json file. Please select the correct project folder.');
                 }
