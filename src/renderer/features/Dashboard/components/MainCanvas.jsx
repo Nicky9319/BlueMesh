@@ -26,12 +26,7 @@ const MainCanvas = ({ selectedTabId, currentProjectPath }) => {
                     {selectedTabTitle}
                 </div>
                 
-                {selectedTabId === 'directory' && currentProjectPath && (
-                    <div className="bg-[#0D1117] p-3 border border-[#30363D] rounded">
-                        <p className="text-[#8B949E] mb-2">Current Project:</p>
-                        <p className="text-[#C9D1D9] font-mono break-all">{currentProjectPath}</p>
-                    </div>
-                )}
+                
                 {selectedTabId === 'directory' && (
                     <Directory />
                 )}
