@@ -101,13 +101,13 @@ const TopBar = () => {
             
             if (!response.success) {
                 dispatch(serverFailed(response.error));
-                showNotification(`❌ ${response.message}`, 'error');
+                showNotification(`${response.message}`, 'error');
             }
             // Success is handled by the event listener
         } catch (error) {
             console.error('[TopBar] Start server error:', error);
             dispatch(serverFailed(error.message));
-            showNotification(`❌ Failed to start server: ${error.message}`, 'error');
+            showNotification(`Failed to start server: ${error.message}`, 'error');
         }
     };
 
