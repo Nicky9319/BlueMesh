@@ -22,6 +22,11 @@ if (process.contextIsolated) {
       }
     })
 
+    contextBridge.exposeInMainWorld('api', {
+      openDirectoryDialog: () => ipcRenderer.invoke('dialog:openDirectory'),
+      readFolderStructure: (folderPath, options) => ipcRenderer.invoke('fs:readFolderStructure', folderPath, options)
+    })
+
     contextBridge.exposeInMainWorld('db', {
       updateAgentEnvVariable: (agentId, envVariable) => dbApi.updateAgentEnvVariable ? dbApi.updateAgentEnvVariable(agentId, envVariable) : Promise.reject('db not loaded'),
       getAgentsInfo: () => dbApi.getAgentsInfo ? dbApi.getAgentsInfo() : Promise.reject('db not loaded'),
@@ -41,6 +46,12 @@ else{
       invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args)
     }
   }
+
+  window.api = {
+    openDirectoryDialog: () => ipcRenderer.invoke('dialog:openDirectory'),
+    readFolderStructure: (folderPath, options) => ipcRenderer.invoke('fs:readFolderStructure', folderPath, options)
+  }
+
   window.db = {
     updateAgentEnvVariable: (agentId, envVariable) => dbApi.updateAgentEnvVariable ? dbApi.updateAgentEnvVariable(agentId, envVariable) : Promise.reject('db not loaded'),
     getAgentsInfo: () => dbApi.getAgentsInfo ? dbApi.getAgentsInfo() : Promise.reject('db not loaded'),

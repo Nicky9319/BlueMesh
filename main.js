@@ -3,6 +3,8 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
+import fs from 'fs'
+import path from 'path'
 
 // Imports and modules END !!! ---------------------------------------------------------------------------------------------------
 
@@ -37,6 +39,94 @@ ipcMain.handle('dialog:openDirectory', async () => {
     return result;
   } catch (error) {
     console.error('Dialog error:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('fs:readFolderStructure', async (event, folderPath, options = {}) => {
+  console.log('Reading folder structure for:', folderPath);
+  
+  const { 
+    includeContent = false, 
+    maxDepth = 10, 
+    excludeHidden = true,
+    excludeNodeModules = true 
+  } = options;
+
+  async function readDirectory(dirPath, currentDepth = 0) {
+    if (currentDepth > maxDepth) return null;
+
+    try {
+      const stats = await fs.promises.stat(dirPath);
+      if (!stats.isDirectory()) return null;
+
+      const items = await fs.promises.readdir(dirPath);
+      const structure = {
+        name: path.basename(dirPath),
+        path: dirPath,
+        type: 'directory',
+        size: stats.size,
+        modified: stats.mtime,
+        children: []
+      };
+
+      for (const item of items) {
+        // Skip hidden files/folders if excludeHidden is true
+        if (excludeHidden && item.startsWith('.')) continue;
+        
+        // Skip node_modules if excludeNodeModules is true
+        if (excludeNodeModules && item === 'node_modules') continue;
+
+        const itemPath = path.join(dirPath, item);
+        
+        try {
+          const itemStats = await fs.promises.stat(itemPath);
+          
+          if (itemStats.isDirectory()) {
+            const subDir = await readDirectory(itemPath, currentDepth + 1);
+            if (subDir) structure.children.push(subDir);
+          } else {
+            const fileInfo = {
+              name: item,
+              path: itemPath,
+              type: 'file',
+              extension: path.extname(item),
+              size: itemStats.size,
+              modified: itemStats.mtime
+            };
+
+            // Include file content if requested and file is not too large (< 1MB)
+            if (includeContent && itemStats.size < 1024 * 1024) {
+              try {
+                const content = await fs.promises.readFile(itemPath, 'utf8');
+                fileInfo.content = content;
+              } catch (readError) {
+                // If can't read as text, mark as binary
+                fileInfo.isBinary = true;
+                console.log(`Could not read content for ${itemPath}:`, readError.message);
+              }
+            }
+
+            structure.children.push(fileInfo);
+          }
+        } catch (itemError) {
+          console.warn(`Could not access ${itemPath}:`, itemError.message);
+        }
+      }
+
+      return structure;
+    } catch (error) {
+      console.error(`Error reading directory ${dirPath}:`, error);
+      throw error;
+    }
+  }
+
+  try {
+    const result = await readDirectory(folderPath);
+    console.log('Folder structure read successfully');
+    return result;
+  } catch (error) {
+    console.error('Failed to read folder structure:', error);
     throw error;
   }
 });
