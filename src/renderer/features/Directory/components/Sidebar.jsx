@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const FileIcon = ({ extension, isDirectory }) => {
   if (isDirectory) return '📁';
@@ -71,6 +71,28 @@ const Sidebar = ({
   onFileClick, 
   onRefresh
 }) => {
+  useEffect(() => {
+    const handleServerFileReload = (event, data) => {
+        console.log("server reload Event Triggered in Directory/Sidebar");
+        // Add any specific logic for file reload here if needed
+    };
+
+    if (window.api && window.api.onServerFileReload) {
+        window.api.onServerFileReload(handleServerFileReload);
+        console.log('[Directory/Sidebar] Subscribed to server:file-reload event');
+    } else {
+        console.warn('[Directory/Sidebar] window.api.onServerFileReload is not available');
+    }
+
+    // Cleanup listener on unmount
+    return () => {
+        if (window.api && window.api.removeServerFileReloadListener) {
+            window.api.removeServerFileReloadListener();
+            console.log('[Directory/Sidebar] Unsubscribed from server:file-reload event');
+        }
+    };
+  }, []);
+
   return (
     <div className="w-80 bg-[#0D1117] border-r border-[#30363D] flex flex-col">
       {/* Sidebar Header */}

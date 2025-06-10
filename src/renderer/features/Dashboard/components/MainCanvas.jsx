@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import TopBar from './TopBar';
 // Import the feature components
 import Directory from '../../Directory/directory';
@@ -14,6 +14,28 @@ const MainCanvas = ({ selectedTabId, currentProjectPath }) => {
     };
 
     const selectedTabTitle = tabTitles[selectedTabId] || 'Unknown Tab';
+
+    useEffect(() => {
+        const handleServerFileReload = (event, data) => {
+            console.log("server reload Event Triggered in Dashboard/MainCanvas");
+            // Add any specific logic for file reload here if needed
+        };
+
+        if (window.api && window.api.onServerFileReload) {
+            window.api.onServerFileReload(handleServerFileReload);
+            console.log('[Dashboard/MainCanvas] Subscribed to server:file-reload event');
+        } else {
+            console.warn('[Dashboard/MainCanvas] window.api.onServerFileReload is not available');
+        }
+
+        // Cleanup listener on unmount
+        return () => {
+            if (window.api && window.api.removeServerFileReloadListener) {
+                window.api.removeServerFileReloadListener();
+                console.log('[Dashboard/MainCanvas] Unsubscribed from server:file-reload event');
+            }
+        };
+    }, []);
 
     return (
         <div className="flex-1 flex flex-col bg-[#0D1117] text-[#C9D1D9] overflow-y-auto">

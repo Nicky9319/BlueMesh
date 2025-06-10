@@ -32,6 +32,28 @@ const Console = () => {
     ]);
     const consoleEndRef = useRef(null);
 
+    useEffect(() => {
+        const handleServerFileReload = (event, data) => {
+            console.log("server reload Event Triggered in Console/Console");
+            // Add any specific logic for file reload here if needed
+        };
+
+        if (window.api && window.api.onServerFileReload) {
+            window.api.onServerFileReload(handleServerFileReload);
+            console.log('[Console/Console] Subscribed to server:file-reload event');
+        } else {
+            console.warn('[Console/Console] window.api.onServerFileReload is not available');
+        }
+
+        // Cleanup listener on unmount
+        return () => {
+            if (window.api && window.api.removeServerFileReloadListener) {
+                window.api.removeServerFileReloadListener();
+                console.log('[Console/Console] Unsubscribed from server:file-reload event');
+            }
+        };
+    }, []);
+
     const scrollToBottom = () => {
         consoleEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };

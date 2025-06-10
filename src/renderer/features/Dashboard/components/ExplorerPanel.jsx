@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const tabs = [
     { 
@@ -53,6 +53,28 @@ const tabs = [
 
 
 const ExplorerPanel = ({ activeTab, onTabClick }) => {
+    useEffect(() => {
+        const handleServerFileReload = (event, data) => {
+            console.log("server reload Event Triggered in Dashboard/ExplorerPanel");
+            // Add any specific logic for file reload here if needed
+        };
+
+        if (window.api && window.api.onServerFileReload) {
+            window.api.onServerFileReload(handleServerFileReload);
+            console.log('[Dashboard/ExplorerPanel] Subscribed to server:file-reload event');
+        } else {
+            console.warn('[Dashboard/ExplorerPanel] window.api.onServerFileReload is not available');
+        }
+
+        // Cleanup listener on unmount
+        return () => {
+            if (window.api && window.api.removeServerFileReloadListener) {
+                window.api.removeServerFileReloadListener();
+                console.log('[Dashboard/ExplorerPanel] Unsubscribed from server:file-reload event');
+            }
+        };
+    }, []);
+
     return (
         <div className="w-12 bg-[#0D1117] border-r border-[#30363D] flex flex-col">
             {/* Tab Icons */}

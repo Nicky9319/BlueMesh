@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 // New internal ServiceItem component for modularity
@@ -46,6 +46,28 @@ const ConsoleSidebar = ({ isOpen, onToggle }) => {
 	const [selectedItem, setSelectedItem] = useState(null);
 	const servicesJson = useSelector(state => state.project.servicesJson);
 	const services = Array.isArray(servicesJson) ? servicesJson : (servicesJson?.services || []);
+
+	useEffect(() => {
+		const handleServerFileReload = (event, data) => {
+			console.log("server reload Event Triggered in Console/ConsoleSidebar");
+			// Add any specific logic for file reload here if needed
+		};
+
+		if (window.api && window.api.onServerFileReload) {
+			window.api.onServerFileReload(handleServerFileReload);
+			console.log('[Console/ConsoleSidebar] Subscribed to server:file-reload event');
+		} else {
+			console.warn('[Console/ConsoleSidebar] window.api.onServerFileReload is not available');
+		}
+
+		// Cleanup listener on unmount
+		return () => {
+			if (window.api && window.api.removeServerFileReloadListener) {
+				window.api.removeServerFileReloadListener();
+				console.log('[Console/ConsoleSidebar] Unsubscribed from server:file-reload event');
+			}
+		};
+	}, []);
 
 	const toggleSection = (section) => {
 		setExpandedSections(prev => ({

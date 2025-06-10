@@ -61,6 +61,28 @@ const Dashboard = () => {
             window.api.removeFolderStructureListeners();
         };
     }, [dispatch]);
+
+    useEffect(() => {
+        const handleServerFileReload = (event, data) => {
+            console.log("server reload Event Triggered in Directory/Dashboard");
+            // Add any specific logic for file reload here if needed
+        };
+
+        if (window.api && window.api.onServerFileReload) {
+            window.api.onServerFileReload(handleServerFileReload);
+            console.log('[Directory/Dashboard] Subscribed to server:file-reload event');
+        } else {
+            console.warn('[Directory/Dashboard] window.api.onServerFileReload is not available');
+        }
+
+        // Cleanup listener on unmount
+        return () => {
+            if (window.api && window.api.removeServerFileReloadListener) {
+                window.api.removeServerFileReloadListener();
+                console.log('[Directory/Dashboard] Unsubscribed from server:file-reload event');
+            }
+        };
+    }, []);
     
     const loadFolderStructure = async () => {
         if (!currentProjectPath) return;
