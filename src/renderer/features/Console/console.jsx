@@ -59,25 +59,18 @@ const Console = () => {
     };
 
     // Callback for when a service is selected in the sidebar
-    const handleServiceSelect = (serviceId, serviceData) => {
+    // Now receives the full output as third argument
+    const handleServiceSelect = (serviceId, serviceData, fullOutput) => {
         setSelectedService(serviceId);
-        // Update console text based on selected service
-        if (serviceId === 'collective-logs') {
-            setConsoleText("Showing collective logs for all services\n-------------------------------------------------\n\n");
-        } else if (serviceData) {
-            setConsoleText(`Showing logs for service: ${serviceData.ServiceName || serviceId}\n-------------------------------------------------\n\n`);
-        }
-        
-        // Scroll to bottom when changing service
+        setConsoleText(fullOutput || "");
         setTimeout(scrollToBottom, 50);
     };
 
     // Callback for when the sidebar needs to update console text (e.g., for live updates)
+    // Only receives the new text to append
     const handleConsoleUpdate = (serviceId, newText) => {
-        // Only update if the currently selected service matches
         if (selectedService === serviceId) {
             setConsoleText(prevText => prevText + newText);
-            // Scroll to bottom on update
             setTimeout(scrollToBottom, 50);
         }
     };

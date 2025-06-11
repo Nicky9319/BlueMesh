@@ -95,37 +95,35 @@ const ConsoleSidebar = ({
     // Helper to handle service selection
     const handleServiceSelect = (itemId, serviceData) => {
         setSelectedItem(itemId);
-        onServiceSelect(itemId, serviceData);
 
-        // Find the corresponding service output from the slice
+        // Always fetch the latest output from the slice
         let output = '';
         if (itemId === 'collective-logs') {
             const collective = servicesState.find(s => s.id === 'collective-logs');
             output = collective ? collective.consoleOutput : '';
         } else {
-            // For service tabs, match by id (service.ServiceName)
             const serviceId = serviceData?.ServiceName || itemId;
             const found = servicesState.find(s => s.id === serviceId);
             output = found ? found.consoleOutput : '';
         }
-        // Send output to parent via callback
-        onConsoleUpdate(itemId, output);
+        // Send the full output to parent (for tab change)
+        onServiceSelect(itemId, serviceData, output);
     };
 
     // Simulate sending console updates (this would be replaced with actual update logic)
     useEffect(() => {
-        // Example of how you might handle console updates
+        // Example: send a new log line every 5s for the selected tab
         const interval = setInterval(() => {
             if (selectedItem && selectedItem.startsWith('service-')) {
                 const serviceIndex = parseInt(selectedItem.split('-')[1]);
                 const service = services[serviceIndex];
                 if (service) {
-                    // This is just an example - you would replace this with real log data
-                    // onConsoleUpdate(selectedItem, `[${new Date().toLocaleTimeString()}] Sample log entry for ${service.ServiceName}\n`);
+                    // Simulate a new log line
+                    const newLine = `[${new Date().toLocaleTimeString()}] Sample log entry for ${service.ServiceName}\n`;
+                    onConsoleUpdate(selectedItem, newLine);
                 }
             }
         }, 5000);
-        
         return () => clearInterval(interval);
     }, [selectedItem, services, onConsoleUpdate]);
 
