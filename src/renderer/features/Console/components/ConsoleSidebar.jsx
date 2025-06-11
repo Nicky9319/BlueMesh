@@ -38,18 +38,31 @@ function ServiceItem({ service, isSelected, onSelect, getServiceIcon, getService
 	);
 }
 
-const ConsoleSidebar = ({ isOpen, onToggle }) => {
-	const [expandedSections, setExpandedSections] = useState({
-		allServices: true,
-		miscellaneous: true
-	});
-	const [selectedItem, setSelectedItem] = useState(null);
+const ConsoleSidebar = ({ 
+    isOpen, 
+    onToggle, 
+    onServiceSelect = () => {}, 
+    onConsoleUpdate = () => {},
+    selectedService = null 
+}) => {
+    const [expandedSections, setExpandedSections] = useState({
+        allServices: true,
+        miscellaneous: true
+    });
+    const [selectedItem, setSelectedItem] = useState(null);
 
-	// Load servicesJson from serverServices slice instead of project slice
-	const servicesJson = useSelector(state => state.serverServices.servicesJson);
-	const services = Array.isArray(servicesJson) ? servicesJson : (servicesJson?.services || []);
+    // Load servicesJson from serverServices slice
+    const servicesJson = useSelector(state => state.serverServices.servicesJson);
+    const services = Array.isArray(servicesJson) ? servicesJson : (servicesJson?.services || []);
+    
+    // Sync internal selected state with parent component
+    useEffect(() => {
+        if (selectedService && selectedService !== selectedItem) {
+            setSelectedItem(selectedService);
+        }
+    }, [selectedService]);
 
-	useEffect(() => {
+    useEffect(() => {
 		const handleServerFileReload = (event, data) => {
 			console.log("server reload Event Triggered in Console/ConsoleSidebar");
 			// Add any specific logic for file reload here if needed
@@ -71,14 +84,36 @@ const ConsoleSidebar = ({ isOpen, onToggle }) => {
 		};
 	}, []);
 
-	const toggleSection = (section) => {
-		setExpandedSections(prev => ({
-			...prev,
-			[section]: !prev[section]
-		}));
-	};
+    const toggleSection = (section) => {
+        setExpandedSections(prev => ({
+            ...prev,
+            [section]: !prev[section]
+        }));
+    };
 
-	// Helper functions
+    // Helper to handle service selection
+    const handleServiceSelect = (itemId, serviceData) => {
+        setSelectedItem(itemId);
+        onServiceSelect(itemId, serviceData);
+    };
+
+    // Simulate sending console updates (this would be replaced with actual update logic)
+    useEffect(() => {
+        // Example of how you might handle console updates
+        const interval = setInterval(() => {
+            if (selectedItem && selectedItem.startsWith('service-')) {
+                const serviceIndex = parseInt(selectedItem.split('-')[1]);
+                const service = services[serviceIndex];
+                if (service) {
+                    // This is just an example - you would replace this with real log data
+                    // onConsoleUpdate(selectedItem, `[${new Date().toLocaleTimeString()}] Sample log entry for ${service.ServiceName}\n`);
+                }
+            }
+        }, 5000);
+        
+        return () => clearInterval(interval);
+    }, [selectedItem, services, onConsoleUpdate]);
+
 	const getServiceIcon = (serviceType) => {
 		switch (serviceType) {
 			case 'HTTP_QUEUE_MERGE':
@@ -158,13 +193,14 @@ const ConsoleSidebar = ({ isOpen, onToggle }) => {
 							<div className="px-2 pb-3">
 								{services.length > 0 ? (
 									services.map((service, index) => {
-										const isSelected = selectedItem === `service-${index}`;
+										const itemId = `service-${index}`;
+										const isSelected = selectedItem === itemId;
 										return (
 											<ServiceItem 
 												key={index}
 												service={service}
 												isSelected={isSelected}
-												onSelect={() => setSelectedItem(`service-${index}`)}
+												onSelect={() => handleServiceSelect(itemId, service)}
 												getServiceIcon={getServiceIcon}
 												getServiceStatus={getServiceStatus}
 											/>
@@ -211,7 +247,7 @@ const ConsoleSidebar = ({ isOpen, onToggle }) => {
 						{expandedSections.miscellaneous && (
 							<div className="px-2 pb-3">
 								<div 
-									onClick={() => setSelectedItem('collective-logs')}
+									onClick={() => handleServiceSelect('collective-logs', null)}
 									className={`text-xs py-2 px-2 mx-1 rounded cursor-pointer flex items-center gap-2 group transition-all ${
 										selectedItem === 'collective-logs'
 											? 'bg-[#1F6FEB]/20 text-[#C9D1D9] border border-[#1F6FEB]/30'

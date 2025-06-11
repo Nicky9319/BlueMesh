@@ -23,6 +23,7 @@ const Console = () => {
         "This is the Console Output for the Service \\n-------------------------------------------------\n\n"
     );
     const consoleEndRef = useRef(null);
+    const [selectedService, setSelectedService] = useState(null);
 
     useEffect(() => {
         const handleServerFileReload = (event, data) => {
@@ -59,12 +60,39 @@ const Console = () => {
         setSidebarOpen(!sidebarOpen);
     };
 
+    // Callback for when a service is selected in the sidebar
+    const handleServiceSelect = (serviceId, serviceData) => {
+        setSelectedService(serviceId);
+        // Update console text based on selected service
+        if (serviceId === 'collective-logs') {
+            setConsoleText("Showing collective logs for all services\n-------------------------------------------------\n\n");
+        } else if (serviceData) {
+            setConsoleText(`Showing logs for service: ${serviceData.ServiceName || serviceId}\n-------------------------------------------------\n\n`);
+        }
+        
+        // Scroll to bottom when changing service
+        setTimeout(scrollToBottom, 50);
+    };
+
+    // Callback for when the sidebar needs to update console text (e.g., for live updates)
+    const handleConsoleUpdate = (serviceId, newText) => {
+        // Only update if the currently selected service matches
+        if (selectedService === serviceId) {
+            setConsoleText(prevText => prevText + newText);
+            // Scroll to bottom on update
+            setTimeout(scrollToBottom, 50);
+        }
+    };
+
     return (
         <div className="h-full bg-[#0D1117] text-[#C9D1D9] flex">
             {/* Sidebar */}
             <ConsoleSidebar 
                 isOpen={sidebarOpen} 
-                onToggle={toggleSidebar} 
+                onToggle={toggleSidebar}
+                onServiceSelect={handleServiceSelect}
+                onConsoleUpdate={handleConsoleUpdate}
+                selectedService={selectedService}
             />
 
             {/* Main Console Area with Toggle Button */}
@@ -91,15 +119,11 @@ const Console = () => {
                     </div>
                 </div>
 
-                {/* Console Output */}
-                <div className="flex-1 bg-[#0D1117] p-4 overflow-hidden">
-                    <div className="h-full bg-[#161B22] rounded-lg border border-[#30363D] p-4 overflow-y-auto">
-                        <div className="font-mono text-sm space-y-1 whitespace-pre-wrap break-words">
-                            {formatMessage(consoleText)}
-                            <div ref={consoleEndRef} />
-                        </div>
-                    </div>
-                </div>
+                <ConsoleMainArea
+                    consoleText={consoleText}
+                    formatMessage={formatMessage}
+                    consoleEndRef={consoleEndRef}
+                />
             </div>
         </div>
     );
