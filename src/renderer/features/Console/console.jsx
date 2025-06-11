@@ -2,20 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ConsoleSidebar from './components/ConsoleSidebar';
 import ConsoleMainArea from './components/ConsoleMainArea';
 
-// Helper function to process escape sequences in log messages
-function formatMessage(messageString) {
-    if (typeof messageString !== 'string') {
-        return messageString;
-    }
-    // Replace literal escape sequences with their actual characters
-    // Order is important: \\ first (via placeholder), then \n, \t, etc.
-    return messageString
-        .replace(/\\\\/g, '\uE000TEMP_BACKSLASH\uE001') // Use PUA characters as placeholder for \
-        .replace(/\\n/g, '\n') // literal \n to newline
-        .replace(/\\t/g, '\t') // literal \t to tab
-        .replace(/\\r/g, '\r') // literal \r to carriage return
-        .replace(/\uE000TEMP_BACKSLASH\uE001/g, '\\'); // placeholder back to \
-}
+// Helper function to process escape sequences in log message
 
 const Console = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -112,7 +99,6 @@ const Console = () => {
 
                 <ConsoleMainArea
                     consoleText={consoleText}
-                    formatMessage={formatMessage}
                     consoleEndRef={consoleEndRef}
                 />
             </div>
