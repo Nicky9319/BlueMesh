@@ -1,85 +1,111 @@
-import React, { useEffect, useState } from 'react';
-
-function formatMessage(messageString) {
-    if (typeof messageString !== 'string') {
-        return messageString;
-    }
-    // Replace literal escape sequences with their actual characters
-    // Order is important: \\ first (via placeholder), then \n, \t, etc.
-    return messageString
-        .replace(/\\\\/g, '\uE000TEMP_BACKSLASH\uE001') // Use PUA characters as placeholder for \
-        .replace(/\\n/g, '\n') // literal \n to newline
-        .replace(/\\t/g, '\t') // literal \t to tab
-        .replace(/\\r/g, '\r') // literal \r to carriage return
-        .replace(/\uE000TEMP_BACKSLASH\uE001/g, '\\'); // placeholder back to \
-}
-
-// Individual row component for console lines
-const ConsoleRow = ({ line, index }) => {
-    return (
-        <div className="min-h-[20px] py-0.5 px-1 hover:bg-[#1C2128] transition-colors">
-            <span className="font-mono text-sm text-[#C9D1D9] whitespace-pre-wrap break-words">
-                {line || '\u00A0'} {/* Non-breaking space for empty lines */}
-            </span>
-        </div>
-    );
-};
+import React, { useEffect, useState, useRef } from 'react';
 
 const ConsoleMainArea = ({ consoleText, consoleEndRef }) => {
-    const [consoleRows, setConsoleRows] = useState([]);
+  const [output, setOutput] = useState('');
 
-    useEffect(() => {
-        if (!consoleText) {
-            setConsoleRows([]);
-            console.log('[ConsoleMainArea] Number of rows: 0');
-            return;
-        }
+  const containerRef = useRef(null);
+  const parentRef = useRef(null);
+  const [containerHeight, setContainerHeight] = useState(0);
+  const [parentHeight, setParentHeight] = useState(0);
 
-        const formattedText = formatMessage(consoleText);
-        const lines = formattedText.split('\n');
-        setConsoleRows(lines);
-        console.log(`[ConsoleMainArea] Number of rows: ${lines.length}`);
-    }, [consoleText]);
+  useEffect(() => {
+    const updateHeight = () => {
+      const newContainerHeight = containerRef.current?.getBoundingClientRect().height || 0;
+      const newParentHeight = parentRef.current?.getBoundingClientRect().height || 0;
+      
+      // Check if parent height has changed
+      if (newParentHeight !== parentHeight && newParentHeight > 0) {
+        console.log(`[ConsoleMainArea] Parent height changed: ${parentHeight}px -> ${newParentHeight}px`);
+      }
+      
+      if (containerRef.current) {
+        setContainerHeight(newContainerHeight);
+      }
+      if (parentRef.current) {
+        setParentHeight(newParentHeight);
+      }
+    };
 
-    return (
-        <div className="flex-1 flex flex-col min-h-0 max-h-full">
-            {/* Console Output */}
-            <div className="flex-1 bg-[#0D1117] p-4 min-h-0">
-                <div className="h-full bg-[#161B22] rounded-lg border border-[#30363D] overflow-hidden flex flex-col">
-                    <div className="flex-1 overflow-y-auto custom-scrollbar">
-                        <div className="p-2">
-                            {consoleRows.map((line, index) => (
-                                <ConsoleRow 
-                                    key={index} 
-                                    line={line} 
-                                    index={index}
-                                />
-                            ))}
-                            <div ref={consoleEndRef} />
-                        </div>
-                    </div>
-                </div>
-            </div>
+    updateHeight();
 
-            {/* Custom scrollbar styling */}
-            <style>{`
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 6px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-track {
-                    background: #161B22;
-                    border-radius: 3px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #30363D;
-                    border-radius: 3px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: #484F58;
-                }
-            `}</style>
+    // Create ResizeObserver to watch parent height changes
+    const resizeObserver = new ResizeObserver(() => {
+      console.log('[ConsoleMainArea] ResizeObserver triggered - Parent height change detected');
+      updateHeight();
+    });
+
+    // Observe the parent element for size changes
+    if (parentRef.current) {
+      resizeObserver.observe(parentRef.current);
+    }
+
+    // Update heights on window resize
+    const handleResize = () => updateHeight();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
+    };
+  }, [parentHeight]);
+
+  useEffect(() => {
+    // Direct assignment since stdout from Python will have real line breaks (no escaped \n)
+    setOutput(consoleText || '');
+    console.log(consoleText); // Log the consoleText to see the actual content
+    console.log(`[ConsoleMainArea] Parent height: ${parentHeight}px, Container height: ${containerHeight}px`);
+  }, [consoleText, parentHeight, containerHeight]);
+
+  return (
+    <div ref={parentRef} className="flex-1 flex flex-col min-h-0">
+      <div className="flex-1 bg-[#0D1117] p-4 min-h-0">
+        <div
+          ref={containerRef}
+          className="h-full bg-[#161B22] rounded-lg border border-[#30363D] p-4 overflow-y-auto custom-scrollbar"
+          style={{ maxHeight: `${parentHeight * 0.94}px` }}
+        >
+          <pre className="font-mono text-sm m-0 whitespace-pre-wrap break-words">
+            {output}
+          </pre>
+          <div ref={consoleEndRef} />
         </div>
-    );
+      </div>
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #161B22;
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #30363D;
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #484F58;
+        }
+      `}</style>
+
+
+        {console.log("parent Height : " , parentHeight)}
+    </div>
+  );
 };
 
 export default ConsoleMainArea;
+
+// TEST CASE:
+// const sampleText = `Collective logs for all services\n-------------------------------------------------\nLine 1\nLine 2\nLine 3`; 
+// 
+// Actually, this would come in with real newlines:
+const sampleText = `Collective logs for all services
+-------------------------------------------------
+Line 1
+Line 2
+Line 3`;
+
+// Then you’d pass it as:
+// <ConsoleMainArea consoleText={sampleText} consoleEndRef={someRef} />
+
+// This should render the text with line breaks as expected.

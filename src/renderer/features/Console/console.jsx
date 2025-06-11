@@ -65,13 +65,14 @@ const Console = () => {
     return (
         <div className="h-full bg-[#0D1117] text-[#C9D1D9] flex overflow-hidden">
             {/* Sidebar */}
-            <ConsoleSidebar 
-                isOpen={sidebarOpen} 
+            <ConsoleSidebar
+                isOpen={sidebarOpen}
                 onToggle={toggleSidebar}
                 onServiceSelect={handleServiceSelect}
                 onConsoleUpdate={handleConsoleUpdate}
                 selectedService={selectedService}
             />
+
 
             {/* Main Console Area with Toggle Button */}
             <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
