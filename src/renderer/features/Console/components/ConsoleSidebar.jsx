@@ -44,7 +44,9 @@ const ConsoleSidebar = ({ isOpen, onToggle }) => {
 		miscellaneous: true
 	});
 	const [selectedItem, setSelectedItem] = useState(null);
-	const servicesJson = useSelector(state => state.project.servicesJson);
+
+	// Load servicesJson from serverServices slice instead of project slice
+	const servicesJson = useSelector(state => state.serverServices.servicesJson);
 	const services = Array.isArray(servicesJson) ? servicesJson : (servicesJson?.services || []);
 
 	useEffect(() => {

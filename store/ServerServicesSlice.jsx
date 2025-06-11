@@ -2,7 +2,8 @@ import { createSlice } from '@reduxjs/toolkit';
 
 // Each service has: { id, consoleOutput }
 const initialState = {
-    services: []
+    services: [],
+    servicesJson: null // moved here from ServerInfoSlice
 };
 
 const serverServicesSlice = createSlice({
@@ -30,9 +31,12 @@ const serverServicesSlice = createSlice({
         removeService: (state, action) => {
             // action.payload: id
             state.services = state.services.filter(s => s.id !== action.payload);
+        },
+        setServicesJson: (state, action) => {
+            state.servicesJson = action.payload;
         }
     }
 });
 
-export const { addService, updateConsoleOutput, removeService } = serverServicesSlice.actions;
+export const { addService, updateConsoleOutput, removeService, setServicesJson } = serverServicesSlice.actions;
 export default serverServicesSlice.reducer;

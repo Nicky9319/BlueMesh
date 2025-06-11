@@ -4,8 +4,7 @@ const initialState = {
   currentProjectPath: '',
   isProjectLoaded: false,
   folderStructure: null,
-  isLoadingStructure: false,
-  servicesJson: null // Add this line
+  isLoadingStructure: false
 };
 
 const projectSlice = createSlice({
@@ -22,16 +21,11 @@ const projectSlice = createSlice({
     setLoadingStructure: (state, action) => {
       state.isLoadingStructure = action.payload;
     },
-    setServicesJson: (state, action) => { // Add this reducer
-      // console.log(action.payload);
-      state.servicesJson = action.payload;
-    },
     clearProject: (state) => {
       state.currentProjectPath = '';
       state.isProjectLoaded = false;
       state.folderStructure = null;
       state.isLoadingStructure = false;
-      state.servicesJson = null; // Clear on reset
     }
   }
 });
@@ -40,7 +34,6 @@ export const {
   setCurrentProjectPath, 
   setFolderStructure, 
   setLoadingStructure, 
-  setServicesJson, // Export this
   clearProject 
 } = projectSlice.actions;
 export default projectSlice.reducer;
