@@ -25,7 +25,11 @@ const ProjectSelection = () => {
                     // console.log('Adding service:', service);
                     dispatch(addService({
                         id: service.ServiceName,
-                        consoleOutput: service.ServiceName // default value is the name of the service
+                        
+                        // default value is the name of the service
+                        consoleOutput: ` Logs for ${service.ServiceName} service
+-------------------------------------------------
+` 
                     }));
                 });
             }
@@ -42,7 +46,7 @@ const ProjectSelection = () => {
 
             const result = await window.electron.ipcRenderer.invoke('dialog:openDirectory');
             // console.log('Dialog result received:', result);
-            
+
             if (result && !result.canceled && result.filePaths.length > 0) {
                 const folderPath = result.filePaths[0];
 
@@ -73,7 +77,7 @@ const ProjectSelection = () => {
             alert('Error opening folder dialog: ' + error.message);
         }
     };
-    
+
     return (
         <div className="flex h-screen items-center justify-center bg-[#0D1117]">
             <div className="text-center">
