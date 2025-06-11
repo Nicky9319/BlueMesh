@@ -110,23 +110,6 @@ const ConsoleSidebar = ({
         onServiceSelect(itemId, serviceData, output);
     };
 
-    // Simulate sending console updates (this would be replaced with actual update logic)
-    useEffect(() => {
-        // Example: send a new log line every 5s for the selected tab
-        const interval = setInterval(() => {
-            if (selectedItem && selectedItem.startsWith('service-')) {
-                const serviceIndex = parseInt(selectedItem.split('-')[1]);
-                const service = services[serviceIndex];
-                if (service) {
-                    // Simulate a new log line
-                    const newLine = `[${new Date().toLocaleTimeString()}] Sample log entry for ${service.ServiceName}\n`;
-                    onConsoleUpdate(selectedItem, newLine);
-                }
-            }
-        }, 5000);
-        return () => clearInterval(interval);
-    }, [selectedItem, services, onConsoleUpdate]);
-
 	const getServiceIcon = (serviceType) => {
 		switch (serviceType) {
 			case 'HTTP_QUEUE_MERGE':
