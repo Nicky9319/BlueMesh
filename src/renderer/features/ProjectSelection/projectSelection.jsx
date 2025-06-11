@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setCurrentProjectPath, setServicesJson } from '../../../../store/ServerInfoSlice';
+import { addService } from '../../../../store/ServerServicesSlice';
 
 const ProjectSelection = () => {
     const [selectedPath, setSelectedPath] = useState('');
@@ -17,7 +18,17 @@ const ProjectSelection = () => {
                 'services.json'
             );
             dispatch(setServicesJson(servicesJsonContent));
-            // console.log('servicesJson stored in Redux:', servicesJsonContent);
+            // console.log('services.json content:', servicesJsonContent);
+            // Populate ServerServicesSlice with services from services.json
+            if (servicesJsonContent && Array.isArray(servicesJsonContent)) {
+                servicesJsonContent.forEach(service => {
+                    // console.log('Adding service:', service);
+                    dispatch(addService({
+                        id: service.ServiceName,
+                        consoleOutput: service.ServiceName // default value is the name of the service
+                    }));
+                });
+            }
         } catch (error) {
             alert('Failed to read services.json: ' + error.message);
             throw error;
@@ -26,11 +37,11 @@ const ProjectSelection = () => {
 
     const handleSelectFolder = async () => {
         try {
-            console.log('Attempting to open folder dialog...');
-            console.log('window.electron:', window.electron);
+            // console.log('Attempting to open folder dialog...');
+            // console.log('window.electron:', window.electron);
 
             const result = await window.electron.ipcRenderer.invoke('dialog:openDirectory');
-            console.log('Dialog result received:', result);
+            // console.log('Dialog result received:', result);
             
             if (result && !result.canceled && result.filePaths.length > 0) {
                 const folderPath = result.filePaths[0];
@@ -43,6 +54,7 @@ const ProjectSelection = () => {
                 );
 
                 if (hasServicesJson) {
+                    console.log('Selected folder contains services.json:', folderPath);
                     setSelectedPath(folderPath);
                     dispatch(setCurrentProjectPath(folderPath));
                     // Read and store services.json, then navigate

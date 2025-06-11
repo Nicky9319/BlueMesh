@@ -10,11 +10,15 @@ const serverServicesSlice = createSlice({
     initialState,
     reducers: {
         addService: (state, action) => {
+            // console.log('Adding service:', action.payload.id);
             // action.payload: { id, consoleOutput }
             state.services.push({
                 id: action.payload.id,
                 consoleOutput: action.payload.consoleOutput || ""
             });
+
+            // console.log('Service added:', action.payload.id);
+            // console.log('Current services:', state.services);
         },
         updateConsoleOutput: (state, action) => {
             // action.payload: { id, consoleOutput }
