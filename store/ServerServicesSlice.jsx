@@ -2,7 +2,8 @@ import { createSlice } from '@reduxjs/toolkit';
 
 // Each service has: { id, consoleOutput }
 const initialState = {
-    services: [{"id" : "collective-logs", "consoleOutput": "Collective logs for all services\n-------------------------------------------------\n\n"}], // default service for collective logs
+    services: [{"id" : "collective-logs", 
+"consoleOutput": "Collective logs for all services\n-------------------------------------------------\n\njnrwjgnwg\n\n\hejfhbrwbghwbnrhggjnrwbghrwgnrwhrwngrwhrwjbgrwhbgrwgrw\n\n\n\efhurwgrwhhrwgrwhgvwhbrfvrwbfw gbifvhu\n\n\n\n\n\n\n\n\n\nn\tfqgffqebbvctvyufibvcfyqegvuhbfn\n\\n\n\nn\n\qetyfvquvfqyvqebqecfyqevfuev\n\n\n\n\n\n\n\n\n\nqeghigfuqhhfuvfyhefyg"}], // default service for collective logs
     servicesJson: null // moved here from ServerInfoSlice
 };
 
