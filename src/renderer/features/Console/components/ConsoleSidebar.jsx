@@ -108,9 +108,16 @@ const ConsoleSidebar = ({ isOpen, onToggle }) => {
 	};
 
 	return (
-		<div className={`bg-[#161B22] border-r border-[#30363D] transition-all duration-300 flex flex-col ${
-			isOpen ? 'w-72' : 'w-0'
-		} overflow-hidden`}>
+		<div 
+			className={`bg-[#161B22] border-r border-[#30363D] transition-all duration-300 flex flex-col h-full overflow-hidden`}
+			style={{
+				width: isOpen ? '288px' : '0px', // Use exact pixels for smooth transition
+				minWidth: isOpen ? '288px' : '0px',
+				maxWidth: isOpen ? '288px' : '0px',
+				opacity: isOpen ? 1 : 0,
+				visibility: isOpen ? 'visible' : 'hidden' // Add visibility for proper hiding
+			}}
+		>
 			{isOpen && (
 				<>
 					{/* Header */}
