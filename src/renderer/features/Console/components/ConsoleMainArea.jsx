@@ -1,9 +1,9 @@
 import React from 'react';
 
 const ConsoleMainArea = ({ consoleText, formatMessage, consoleEndRef }) => (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
         {/* Console Output */}
-        <div className="flex-1 bg-[#0D1117] p-4 overflow-hidden">
+        <div className="flex-1 bg-[#0D1117] p-4 min-h-0">
             <div className="h-full bg-[#161B22] rounded-lg border border-[#30363D] p-4 overflow-y-auto custom-scrollbar">
                 <div className="font-mono text-sm space-y-1 whitespace-pre-wrap break-words">
                     {formatMessage(consoleText)}
@@ -13,7 +13,7 @@ const ConsoleMainArea = ({ consoleText, formatMessage, consoleEndRef }) => (
         </div>
 
         {/* Custom scrollbar styling */}
-        <style jsx global>{`
+        <style>{`
             .custom-scrollbar::-webkit-scrollbar {
                 width: 6px;
             }

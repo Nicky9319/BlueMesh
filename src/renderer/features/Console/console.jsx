@@ -76,7 +76,7 @@ const Console = () => {
     };
 
     return (
-        <div className="h-full bg-[#0D1117] text-[#C9D1D9] flex">
+        <div className="h-full bg-[#0D1117] text-[#C9D1D9] flex overflow-hidden">
             {/* Sidebar */}
             <ConsoleSidebar 
                 isOpen={sidebarOpen} 
@@ -87,9 +87,9 @@ const Console = () => {
             />
 
             {/* Main Console Area with Toggle Button */}
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
                 {/* Header with Toggle Button */}
-                <div className="p-4 border-b border-[#30363D] flex items-center justify-between">
+                <div className="p-4 border-b border-[#30363D] flex items-center justify-between flex-shrink-0">
                     <div className="flex items-center gap-3">
                         {/* Add sidebar toggle button */}
                         <button 
