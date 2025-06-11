@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 // Each service has: { id, consoleOutput }
 const initialState = {
-    services: [],
+    services: [{"id" : "collective-logs", "consoleOutput": "Collective logs for all services\n-------------------------------------------------\n\n"}], // default service for collective logs
     servicesJson: null // moved here from ServerInfoSlice
 };
 
@@ -11,15 +11,12 @@ const serverServicesSlice = createSlice({
     initialState,
     reducers: {
         addService: (state, action) => {
-            // console.log('Adding service:', action.payload.id);
-            // action.payload: { id, consoleOutput }
             state.services.push({
                 id: action.payload.id,
                 consoleOutput: action.payload.consoleOutput || ""
             });
-
-            // console.log('Service added:', action.payload.id);
-            // console.log('Current services:', state.services);
+            // Log a shallow copy to see the real array
+            console.log('[ServerServicesSlice] New services state:', [...state.services]);
         },
         updateConsoleOutput: (state, action) => {
             // action.payload: { id, consoleOutput }

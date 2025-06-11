@@ -19,9 +19,7 @@ function formatMessage(messageString) {
 
 const Console = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [consoleText, setConsoleText] = useState(
-        "This is the Console Output for the Service \\n-------------------------------------------------\n\n"
-    );
+    const [consoleText, setConsoleText] = useState("");
     const consoleEndRef = useRef(null);
     const [selectedService, setSelectedService] = useState(null);
 

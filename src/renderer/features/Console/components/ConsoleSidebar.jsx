@@ -54,7 +54,8 @@ const ConsoleSidebar = ({
     // Load servicesJson from serverServices slice
     const servicesJson = useSelector(state => state.serverServices.servicesJson);
     const services = Array.isArray(servicesJson) ? servicesJson : (servicesJson?.services || []);
-    
+    const servicesState = useSelector(state => state.serverServices.services);
+
     // Sync internal selected state with parent component
     useEffect(() => {
         if (selectedService && selectedService !== selectedItem) {
@@ -95,6 +96,20 @@ const ConsoleSidebar = ({
     const handleServiceSelect = (itemId, serviceData) => {
         setSelectedItem(itemId);
         onServiceSelect(itemId, serviceData);
+
+        // Find the corresponding service output from the slice
+        let output = '';
+        if (itemId === 'collective-logs') {
+            const collective = servicesState.find(s => s.id === 'collective-logs');
+            output = collective ? collective.consoleOutput : '';
+        } else {
+            // For service tabs, match by id (service.ServiceName)
+            const serviceId = serviceData?.ServiceName || itemId;
+            const found = servicesState.find(s => s.id === serviceId);
+            output = found ? found.consoleOutput : '';
+        }
+        // Send output to parent via callback
+        onConsoleUpdate(itemId, output);
     };
 
     // Simulate sending console updates (this would be replaced with actual update logic)
