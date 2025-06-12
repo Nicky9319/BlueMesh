@@ -1,9 +1,15 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { useSelector } from 'react-redux';
 import ServiceCard from './components/ServiceCard';
 
 const ArchitectureCanvas = () => {
-    const servicesJson = useSelector(state => state.project.servicesJson);
+    const servicesJson = useSelector(state => state.serverServices.servicesJson);
+
+    useEffect(() => {
+        console.log('ArchitectureCanvas mounted');
+        console.log('Services JSON:', servicesJson);
+    },[ servicesJson ]);
+
 
     const renderServices = () => {
         if (!servicesJson) {
