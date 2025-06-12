@@ -1,19 +1,27 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { updateConsoleOutput } from '../../store/ServerServicesSlice';
 
 const AppEventListener = ({ onEvent }) => {
+    const services = useSelector((state) => state.serverServices.services);
+    const dispatch = useDispatch();
+
     useEffect(() => {
-        const handleEvent = (event) => {
-            if (onEvent) {
-                onEvent(event);
-            }
+        const handleEvent = (event, serviceId, output) => {
+            console.log('AppEventListener: Received event', event, serviceId, output);
+            
+            dispatch(updateConsoleOutput({
+                id: serviceId,
+                consoleOutput: output
+            }));
         };
 
-        window.addEventListener('app-event', handleEvent);
+        window.services.onUpdateServiceConsoleOutput(handleEvent);
 
         return () => {
-            window.removeEventListener('app-event', handleEvent);
+            window.services.removeUpdateServiceConsoleOutputListener(handleEvent);
         };
-    }, [onEvent]);
+    }, [dispatch, onEvent]);
 
     return null;
 };

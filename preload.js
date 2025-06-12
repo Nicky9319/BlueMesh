@@ -62,7 +62,8 @@ if (process.contextIsolated) {
     });
 
     contextBridge.exposeInMainWorld('services', {
-      
+      onUpdateServiceConsoleOutput: (callback) => ipcRenderer.on('services:updateConsoleOutput', callback),
+      removeUpdateServiceConsoleOutputListener: () => ipcRenderer.removeAllListeners('services:updateConsoleOutput')
     });
   }
   catch (error) {
