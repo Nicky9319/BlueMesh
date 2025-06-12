@@ -63,8 +63,16 @@ if (process.contextIsolated) {
 
     contextBridge.exposeInMainWorld('services', {
       onUpdateServiceConsoleOutput: (callback) => ipcRenderer.on('services:updateConsoleOutput', callback),
-      removeUpdateServiceConsoleOutputListener: () => ipcRenderer.removeAllListeners('services:updateConsoleOutput')
+      removeUpdateServiceConsoleOutputListener: () => ipcRenderer.removeAllListeners('services:updateConsoleOutput'),
+      onGetServicesJsonFile: (callback) => ipcRenderer.on('services:getServicesJsonFile', callback),
+      removeGetServicesJsonFileListener: () => ipcRenderer.removeAllListeners('services:getServicesJsonFile'),
     });
+
+    contextBridge.exposeInMainWorld('project',{
+      onGetProjectPath: (callback) => ipcRenderer.on('project:getProjectPath', callback),
+      removeGetProjectPathListener: () => ipcRenderer.removeAllListeners('project:getProjectPath'),
+    })
+
   }
   catch (error) {
     console.error(error)
