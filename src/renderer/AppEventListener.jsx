@@ -6,10 +6,11 @@ const AppEventListener = ({ onEvent }) => {
     const services = useSelector((state) => state.serverServices.services);
     const dispatch = useDispatch();
 
+
     useEffect(() => {
         const handleEvent = (event, serviceId, output) => {
             console.log('AppEventListener: Received event', event, serviceId, output);
-            
+
             dispatch(updateConsoleOutput({
                 id: serviceId,
                 consoleOutput: output
