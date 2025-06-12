@@ -61,6 +61,9 @@ if (process.contextIsolated) {
       initDb: () => dbApi.initDb ? dbApi.initDb() : Promise.reject('db not loaded'),
     });
 
+    contextBridge.exposeInMainWorld('services', {
+      
+    });
   }
   catch (error) {
     console.error(error)
