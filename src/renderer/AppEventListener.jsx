@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateConsoleOutput } from '../../store/ServerServicesSlice';
+import { appendConsoleOutput, updateConsoleOutput } from '../../store/ServerServicesSlice';
 
 const AppEventListener = ({ onEvent }) => {
     const services = useSelector((state) => state.serverServices.services);
@@ -12,7 +12,7 @@ const AppEventListener = ({ onEvent }) => {
     const handleUpdateServiceConsoleOutput = (event, serviceId, output) => {
         console.log('AppEventListener: Received event', event, serviceId, output);
 
-        dispatch(updateConsoleOutput({
+        dispatch(appendConsoleOutput({
             id: serviceId,
             consoleOutput: output
         }));

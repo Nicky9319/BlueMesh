@@ -88,9 +88,16 @@ const serverServicesSlice = createSlice({
         },
         setServicesJson: (state, action) => {
             state.servicesJson = action.payload;
+        },
+        appendConsoleOutput: (state, action) => {
+            // action.payload: { id, consoleOutput }
+            const service = state.services.find(s => s.id === action.payload.id);
+            if (service) {
+                service.consoleOutput += action.payload.consoleOutput;
+            }
         }
     }
 });
 
-export const { addService, updateConsoleOutput, removeService, setServicesJson } = serverServicesSlice.actions;
+export const { addService, updateConsoleOutput, removeService, setServicesJson, appendConsoleOutput } = serverServicesSlice.actions;
 export default serverServicesSlice.reducer;

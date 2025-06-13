@@ -59,9 +59,9 @@ function getServicesJson() {
 }
 
 function serviceConsoleOutput(serviceId, output) {
-  console.log(`Service ${serviceId} Output:`, output);
+  mainWindow.webContents.send('services:updateConsoleOutput', serviceId, output);
+  // console.log(`Service ${serviceId} Output:`, output);
 };
-
 
 function spawnService(interpretatorPath, servicePath) {
   const wslPrefix = "\\\\wsl.localhost\\";
