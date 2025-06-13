@@ -114,6 +114,11 @@ function startIndividualServices(service, currentProjectPath) {
       serviceProcess.stdout.on('data', (data) => {
         serviceConsoleOutput(service.ServiceName, data.toString());
       });
+
+      serviceProcess.stderr.on('data', (data) => {
+        serviceConsoleOutput(service.ServiceName, data.toString());
+      });
+
     } catch (error) {
       console.error(`Error starting service ${service.ServiceName}:`, error);
     }
