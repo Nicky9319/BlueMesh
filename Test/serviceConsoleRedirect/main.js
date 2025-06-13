@@ -9,11 +9,8 @@ const pyFile = path.join(currentPath, 'ws.py');
 
 const py = spawn('python', ['-u', pyFile]);
 
-const writeStream = fs.createWriteStream('js', { flags: 'a' });
-
 py.stdout.on('data', (data) => {
     process.stdout.write(data);
-    writeStream.write(data);
 });
 
 py.stderr.on('data', (data) => {
@@ -21,7 +18,6 @@ py.stderr.on('data', (data) => {
 });
 
 py.on('close', (code) => {
-    writeStream.end();
     console.log(`main.py exited with code ${code}`);
 });
 
