@@ -129,23 +129,24 @@ function startAllServices(services, currentProjectPath) {
 }
 
 async function startServer() {
-  try {
-    const projectPath = await getCurrentProjectPath();
-    console.log('Starting server for project:', projectPath);
+  return new Promise(async (resolve) => {
+    try {
+      const projectPath = await getCurrentProjectPath();
+      console.log('Starting server for project:', projectPath);
 
-    const servicesJson = await getServicesJson();
-    console.log('Services JSON:', servicesJson);
+      const servicesJson = await getServicesJson();
+      console.log('Services JSON:', servicesJson);
 
-    startAllServices(servicesJson, projectPath);
-    return true;
-  } catch (error) {
-    console.error('Error starting server:', error);
-    return false;
-  }
+      startAllServices(servicesJson, projectPath);
+      resolve(true);
+    } catch (error) {
+      console.error('Error starting server:', error);
+      resolve(false);
+    }
 
+  });
   // Add server start logic here
 }
-
 
 
 function stopIndividualService(serviceName) {
@@ -173,6 +174,17 @@ async function stopServer() {
   stopAllServices();
 }
 
+async function restartServer() {
+  try {
+    await stopServer();
+    await startServer();
+    console.log('Server restarted successfully');
+    return true;
+  } catch (error) {
+    console.error('Error restarting server:', error);
+    return false;
+  }
+}
 
 // IPC Handle Section !!! ------------------------------------------------------------------------------------------------------
 
@@ -484,11 +496,7 @@ ipcMain.handle('server:restart', async (event, projectPath) => {
     serverState = 'loading';
     console.log('[MAIN] Server state changed to: loading (restarting)');
 
-    // TODO: Add actual server restart logic here
-    // For now, simulate restart
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const success = Math.random() > 0.1; // 90% success rate for restart
+    const success = await restartServer();
 
     if (success) {
       serverState = 'running';

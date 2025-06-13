@@ -2,19 +2,21 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 const path = require('path')
 
-import { initDb,
+import {
+  initDb,
   getAgentsInfo,
   addAgentInfo,
-  updateAgentEnvVariable} from './db/db.js';
+  updateAgentEnvVariable
+} from './db/db.js';
 
-  
+
 // Import the db functions with direct relative path
-let dbApi = {initDb, getAgentsInfo, addAgentInfo, updateAgentEnvVariable};
+let dbApi = { initDb, getAgentsInfo, addAgentInfo, updateAgentEnvVariable };
 
 
 
 if (process.contextIsolated) {
-  try{
+  try {
     contextBridge.exposeInMainWorld('electron', {
       ...electronAPI,
       ipcRenderer: {
@@ -69,7 +71,7 @@ if (process.contextIsolated) {
       sendServicesJsonFile: (servicesJsonFile) => ipcRenderer.send('services:setServicesJsonFile', servicesJsonFile),
     });
 
-    contextBridge.exposeInMainWorld('project',{
+    contextBridge.exposeInMainWorld('project', {
       onGetProjectPath: (callback) => ipcRenderer.on('project:getProjectPath', callback),
       removeGetProjectPathListener: () => ipcRenderer.removeAllListeners('project:getProjectPath'),
       sendProjectPath: (projectPath) => ipcRenderer.send('project:setProjectPath', projectPath),
@@ -80,7 +82,7 @@ if (process.contextIsolated) {
     console.error(error)
   }
 }
-else{
+else {
   window.electron = {
     ...electronAPI,
     ipcRenderer: {
