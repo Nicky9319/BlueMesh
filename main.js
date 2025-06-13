@@ -60,6 +60,7 @@ function getServicesJson() {
 
 function serviceConsoleOutput(serviceId, output) {
   mainWindow.webContents.send('services:updateConsoleOutput', serviceId, output);
+  mainWindow.webContents.send('services:updateConsoleOutput', 'collective-logs', output);  
   // console.log(`Service ${serviceId} Output:`, output);
 };
 
@@ -107,7 +108,6 @@ function startIndividualServices(service, currentProjectPath) {
       const serviceProcess = spawnService(interpretatorPath, servicePath);
 
     serviceProcess.stdout.on('data', (data) => {
-      console.log(`Service ${service.ServiceName} Output:`, data.toString());
       serviceConsoleOutput(service.ServiceName, data.toString());
     });
   } catch (error) {

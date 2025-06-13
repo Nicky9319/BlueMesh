@@ -59,7 +59,8 @@ const initialState = {
 // `}], 
 services: [{"id" : "collective-logs", 
 "consoleOutput": `Collective logs for all services
--------------------------------------------------`}], 
+-------------------------------------------------
+`}], 
     servicesJson: null // moved here from ServerInfoSlice
 };
 
