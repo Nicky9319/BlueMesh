@@ -5,7 +5,8 @@ import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import fs from 'fs'
 import path from 'path'
-import { start } from 'repl'
+import { data } from 'react-router-dom'
+const { spawn } = require('child_process');
 
 // Imports and modules END !!! ---------------------------------------------------------------------------------------------------
 
@@ -23,16 +24,16 @@ let serverState = 'idle'; // Track server state in main process
 // Helper function to serialize dates in folder structure
 function serializeFolderStructure(structure) {
   if (!structure) return structure;
-  
+
   const serialized = {
     ...structure,
     modified: structure.modified ? structure.modified.toISOString() : null
   };
-  
+
   if (structure.children) {
     serialized.children = structure.children.map(child => serializeFolderStructure(child));
   }
-  
+
   return serialized;
 }
 
@@ -45,9 +46,9 @@ function getCurrentProjectPath() {
     mainWindow.webContents.send('project:getProjectPath', "Sample", "Sample Content Work"); // Send request to renderer
 
   })
-} 
+}
 
-function getServicesJson(){
+function getServicesJson() {
   return new Promise((resolve, reject) => {
     ipcMain.once(`services:setServicesJsonFile`, (event, responseData) => {
       resolve(responseData); // Fulfill the promise with data
@@ -57,12 +58,78 @@ function getServicesJson(){
   })
 }
 
-async function startServer(){
+function serviceConsoleOutput(serviceId, output) {
+  console.log(`Service ${serviceId} Output:`, output);
+};
+
+
+function spawnService(interpretatorPath, servicePath) {
+  const wslPrefix = "\\\\wsl.localhost\\";
+  let isInterpreterWSL = interpretatorPath.trim().startsWith(wslPrefix);
+  let isServiceWSL = servicePath.trim().startsWith(wslPrefix);
+
+  let wslDistro = "";
+  let linuxInterpreterPath = interpretatorPath;
+  let linuxServicePath = servicePath;
+
+  if (isInterpreterWSL) {
+    // Extract distro and convert interpreter path to Linux style
+    const parts = interpretatorPath.trim().slice(wslPrefix.length).split("\\");
+    wslDistro = parts.shift();
+    linuxInterpreterPath = "/" + parts.join("/");
+  }
+
+  if (isServiceWSL) {
+    // Convert service path to Linux style (ignore distro)
+    const serviceParts = servicePath.trim().slice(wslPrefix.length).split("\\");
+    serviceParts.shift();
+    linuxServicePath = "/" + serviceParts.join("/");
+  }
+
+  if (isInterpreterWSL) {
+    // Use WSL to spawn the process
+    const args = ['-d', wslDistro, linuxInterpreterPath, '-u', linuxServicePath];
+    console.log(`Executing: wsl ${args.join(' ')}`);
+    return spawn('wsl', args, { stdio: 'pipe' });
+  } else {
+    // Use native Windows path
+    console.log(`Executing: ${interpretatorPath} -u ${servicePath}`);
+    return spawn(interpretatorPath, ['-u', servicePath], { stdio: 'pipe' });
+  }
+}
+
+function startIndividualServices(service, currentProjectPath) {
+  if (service.ServiceLanguage == "Python") {
+    const interpretatorPath = path.join(currentProjectPath, ".venv", "bin", "python");
+    const servicePath = path.join(currentProjectPath, service.ServiceFolderName, service.ServiceFileName);
+
+    try {
+      const serviceProcess = spawnService(interpretatorPath, servicePath);
+
+    serviceProcess.stdout.on('data', (data) => {
+      console.log(`Service ${service.ServiceName} Output:`, data.toString());
+      serviceConsoleOutput(service.ServiceName, data.toString());
+    });
+  } catch (error) {
+    console.error(`Error starting service ${service.ServiceName}:`, error);
+  }
+  }
+}
+
+function startAllServices(services, currentProjectPath) {
+  services.forEach(service => {
+    startIndividualServices(service, currentProjectPath);
+  });
+}
+
+async function startServer() {
   const projectPath = await getCurrentProjectPath();
   console.log('Starting server for project:', projectPath);
 
   const servicesJson = await getServicesJson();
   console.log('Services JSON:', servicesJson);
+
+  startAllServices(servicesJson, projectPath);
 
   // Add server start logic here
 }
@@ -76,12 +143,12 @@ ipcMain.handle('dialog:openDirectory', async () => {
       properties: ['openDirectory']
     });
     console.log('Dialog result:', result);
-    
+
     // Log selected folder in main process
     if (result && !result.canceled && result.filePaths.length > 0) {
       console.log('MAIN PROCESS - Selected folder:', result.filePaths[0]);
     }
-    
+
     return result;
   } catch (error) {
     console.error('Dialog error:', error);
@@ -91,12 +158,12 @@ ipcMain.handle('dialog:openDirectory', async () => {
 
 ipcMain.handle('fs:readFolderStructure', async (event, folderPath, options = {}) => {
   console.log('Reading folder structure for:', folderPath);
-  
-  const { 
-    includeContent = false, 
-    maxDepth = 10, 
+
+  const {
+    includeContent = false,
+    maxDepth = 10,
     excludeHidden = true,
-    excludeNodeModules = true 
+    excludeNodeModules = true
   } = options;
 
   async function readDirectory(dirPath, currentDepth = 0) {
@@ -119,15 +186,15 @@ ipcMain.handle('fs:readFolderStructure', async (event, folderPath, options = {})
       for (const item of items) {
         // Skip hidden files/folders if excludeHidden is true
         if (excludeHidden && item.startsWith('.')) continue;
-        
+
         // Skip node_modules if excludeNodeModules is true
         if (excludeNodeModules && item === 'node_modules') continue;
 
         const itemPath = path.join(dirPath, item);
-        
+
         try {
           const itemStats = await fs.promises.stat(itemPath);
-          
+
           if (itemStats.isDirectory()) {
             const subDir = await readDirectory(itemPath, currentDepth + 1);
             if (subDir) structure.children.push(subDir);
@@ -170,13 +237,13 @@ ipcMain.handle('fs:readFolderStructure', async (event, folderPath, options = {})
   try {
     const result = await readDirectory(folderPath);
     console.log('Folder structure read successfully');
-    
+
     // Serialize dates before sending to renderer
     const serializedResult = serializeFolderStructure(result);
-    
+
     // Send folder structure to renderer to update Redux store
     mainWindow.webContents.send('folderStructure:update', serializedResult);
-    
+
     return result;
   } catch (error) {
     console.error('Failed to read folder structure:', error);
@@ -186,14 +253,14 @@ ipcMain.handle('fs:readFolderStructure', async (event, folderPath, options = {})
 
 ipcMain.handle('fs:refreshFolderStructure', async (event, folderPath) => {
   console.log('Refreshing folder structure for:', folderPath);
-  
+
   try {
     // Call the readDirectory function directly with default options
-    const { 
-      includeContent = false, 
-      maxDepth = 5, 
+    const {
+      includeContent = false,
+      maxDepth = 5,
       excludeHidden = true,
-      excludeNodeModules = true 
+      excludeNodeModules = true
     } = {};
 
     async function readDirectory(dirPath, currentDepth = 0) {
@@ -218,10 +285,10 @@ ipcMain.handle('fs:refreshFolderStructure', async (event, folderPath) => {
           if (excludeNodeModules && item === 'node_modules') continue;
 
           const itemPath = path.join(dirPath, item);
-          
+
           try {
             const itemStats = await fs.promises.stat(itemPath);
-            
+
             if (itemStats.isDirectory()) {
               const subDir = await readDirectory(itemPath, currentDepth + 1);
               if (subDir) structure.children.push(subDir);
@@ -250,13 +317,13 @@ ipcMain.handle('fs:refreshFolderStructure', async (event, folderPath) => {
     }
 
     const result = await readDirectory(folderPath);
-    
+
     // Serialize dates before sending to renderer
     const serializedResult = serializeFolderStructure(result);
-    
+
     // Send folder structure to renderer to update Redux store
     mainWindow.webContents.send('folderStructure:update', serializedResult);
-    
+
     return { success: true };
   } catch (error) {
     console.error('Failed to refresh folder structure:', error);
@@ -268,51 +335,51 @@ ipcMain.handle('fs:refreshFolderStructure', async (event, folderPath) => {
 ipcMain.handle('server:start', async (event, projectPath) => {
   await startServer();
   console.log('[MAIN] Server start requested for:', projectPath);
-  
+
   try {
     if (serverState !== 'idle') {
       throw new Error('Server is already running or starting');
     }
-    
+
     serverState = 'loading';
     console.log('[MAIN] Server state changed to: loading');
-    
+
     // Simulate server startup process (replace with actual server logic)
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
+
     // TODO: Add actual server startup logic here
     // For now, we'll simulate success
     const success = Math.random() > 0.2; // 80% success rate for demo
-    
+
     if (success) {
       serverState = 'running';
       console.log('[MAIN] Server started successfully');
-      
+
       // Notify renderer of successful start
       mainWindow.webContents.send('server:started', {
         success: true,
         message: 'Server started successfully',
         projectPath
       });
-      
-      return { 
-        success: true, 
+
+      return {
+        success: true,
         message: 'Server started successfully',
         state: 'running'
       };
     } else {
       serverState = 'idle';
       console.log('[MAIN] Server failed to start');
-      
+
       // Notify renderer of failure
       mainWindow.webContents.send('server:failed', {
         success: false,
         message: 'Failed to start server',
         error: 'Simulated startup failure'
       });
-      
-      return { 
-        success: false, 
+
+      return {
+        success: false,
         message: 'Failed to start server',
         error: 'Simulated startup failure',
         state: 'idle'
@@ -321,15 +388,15 @@ ipcMain.handle('server:start', async (event, projectPath) => {
   } catch (error) {
     serverState = 'idle';
     console.error('[MAIN] Server start error:', error);
-    
+
     mainWindow.webContents.send('server:failed', {
       success: false,
       message: error.message,
       error: error.message
     });
-    
-    return { 
-      success: false, 
+
+    return {
+      success: false,
       message: error.message,
       error: error.message,
       state: 'idle'
@@ -339,35 +406,35 @@ ipcMain.handle('server:start', async (event, projectPath) => {
 
 ipcMain.handle('server:stop', async (event) => {
   console.log('[MAIN] Server stop requested');
-  
+
   try {
     if (serverState !== 'running') {
       throw new Error('Server is not running');
     }
-    
+
     // TODO: Add actual server shutdown logic here
     // For now, we'll simulate shutdown
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     serverState = 'idle';
     console.log('[MAIN] Server stopped successfully');
-    
+
     // Notify renderer of successful stop
     mainWindow.webContents.send('server:stopped', {
       success: true,
       message: 'Server stopped successfully'
     });
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       message: 'Server stopped successfully',
       state: 'idle'
     };
   } catch (error) {
     console.error('[MAIN] Server stop error:', error);
-    
-    return { 
-      success: false, 
+
+    return {
+      success: false,
       message: error.message,
       error: error.message,
       state: serverState
@@ -377,50 +444,50 @@ ipcMain.handle('server:stop', async (event) => {
 
 ipcMain.handle('server:restart', async (event, projectPath) => {
   console.log('[MAIN] Server restart requested');
-  
+
   try {
     if (serverState !== 'running') {
       throw new Error('Server is not running');
     }
-    
+
     serverState = 'loading';
     console.log('[MAIN] Server state changed to: loading (restarting)');
-    
+
     // TODO: Add actual server restart logic here
     // For now, simulate restart
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     const success = Math.random() > 0.1; // 90% success rate for restart
-    
+
     if (success) {
       serverState = 'running';
       console.log('[MAIN] Server restarted successfully');
-      
+
       // Notify renderer of successful restart
       mainWindow.webContents.send('server:restarted', {
         success: true,
         message: 'Server restarted successfully',
         projectPath
       });
-      
-      return { 
-        success: true, 
+
+      return {
+        success: true,
         message: 'Server restarted successfully',
         state: 'running'
       };
     } else {
       serverState = 'idle';
       console.log('[MAIN] Server failed to restart');
-      
+
       // Notify renderer of failure
       mainWindow.webContents.send('server:failed', {
         success: false,
         message: 'Failed to restart server',
         error: 'Simulated restart failure'
       });
-      
-      return { 
-        success: false, 
+
+      return {
+        success: false,
         message: 'Failed to restart server',
         error: 'Simulated restart failure',
         state: 'idle'
@@ -429,15 +496,15 @@ ipcMain.handle('server:restart', async (event, projectPath) => {
   } catch (error) {
     serverState = 'idle';
     console.error('[MAIN] Server restart error:', error);
-    
+
     mainWindow.webContents.send('server:failed', {
       success: false,
       message: error.message,
       error: error.message
     });
-    
-    return { 
-      success: false, 
+
+    return {
+      success: false,
       message: error.message,
       error: error.message,
       state: 'idle'
@@ -447,7 +514,7 @@ ipcMain.handle('server:restart', async (event, projectPath) => {
 
 ipcMain.handle('server:getStatus', async (event) => {
   console.log('[MAIN] Server status requested:', serverState);
-  return { 
+  return {
     state: serverState,
     success: true
   };
@@ -536,13 +603,13 @@ app.whenReady().then(() => {
 
   setTimeout(() => {
     console.log('Triggering server reload event from main process');
-     if (mainWindow && mainWindow.webContents) {
+    if (mainWindow && mainWindow.webContents) {
       mainWindow.webContents.send('server:file-reload', { message: 'Initial file reload trigger from main process' });
       console.log('[MAIN] Sent server:file-reload event to renderer.');
     }
   }, 20000);
 
-  
+
 })
 
 // Quit when all windows are closed, except on macOS
