@@ -18,28 +18,28 @@ const AppEventListener = ({ onEvent }) => {
         }));
     };
 
-    const handleGetServicesJsonFile = (event) => {
+    const getServicesJsonFile = (event) => {
         console.log('AppEventListener: Received services JSON file request');
         console.log('Current servicesJson:', servicesJson);
-        return servicesJson; // Return the Redux value directly
+        window.services.sendServicesJsonFile(servicesJson);
     }
 
-    const handleGetProjectPath = (event) => {
+    const getProjectPath = (event) => {
         console.log('AppEventListener: Received project path request');
         console.log('Current project path:', currentProjectPath);
-        return currentProjectPath; // Return the Redux value directly
+        window.project.sendProjectPath(currentProjectPath);
     };
 
 
     useEffect(() => {
         window.services.onUpdateServiceConsoleOutput(handleUpdateServiceConsoleOutput);
-        window.services.onGetServicesJsonFile(handleGetServicesJsonFile);
-        window.project.onGetProjectPath(handleGetProjectPath);
+        window.services.onGetServicesJsonFile(getServicesJsonFile);
+        window.project.onGetProjectPath(getProjectPath);
 
         return () => {
             window.services.removeUpdateServiceConsoleOutputListener(handleUpdateServiceConsoleOutput);
-            window.services.removeGetServicesJsonFileListener(handleGetServicesJsonFile);
-            window.project.removeGetProjectPathListener(handleGetProjectPath);
+            window.services.removeGetServicesJsonFileListener(getServicesJsonFile);
+            window.project.removeGetProjectPathListener(getProjectPath);
         };
     }, [dispatch, servicesJson, currentProjectPath, onEvent]); // Add dependencies here
 

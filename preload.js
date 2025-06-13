@@ -66,11 +66,13 @@ if (process.contextIsolated) {
       removeUpdateServiceConsoleOutputListener: () => ipcRenderer.removeAllListeners('services:updateConsoleOutput'),
       onGetServicesJsonFile: (callback) => ipcRenderer.on('services:getServicesJsonFile', callback),
       removeGetServicesJsonFileListener: () => ipcRenderer.removeAllListeners('services:getServicesJsonFile'),
+      sendServicesJsonFile: (servicesJsonFile) => ipcRenderer.send('services:setServicesJsonFile', servicesJsonFile),
     });
 
     contextBridge.exposeInMainWorld('project',{
       onGetProjectPath: (callback) => ipcRenderer.on('project:getProjectPath', callback),
       removeGetProjectPathListener: () => ipcRenderer.removeAllListeners('project:getProjectPath'),
+      sendProjectPath: (projectPath) => ipcRenderer.send('project:setProjectPath', projectPath),
     })
 
   }

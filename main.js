@@ -5,6 +5,7 @@ import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import fs from 'fs'
 import path from 'path'
+import { start } from 'repl'
 
 // Imports and modules END !!! ---------------------------------------------------------------------------------------------------
 
@@ -33,6 +34,37 @@ function serializeFolderStructure(structure) {
   }
   
   return serialized;
+}
+
+function getCurrentProjectPath() {
+  return new Promise((resolve, reject) => {
+    ipcMain.once(`project:setProjectPath`, (event, responseData) => {
+      resolve(responseData); // Fulfill the promise with data
+    });
+
+    mainWindow.webContents.send('project:getProjectPath', "Sample", "Sample Content Work"); // Send request to renderer
+
+  })
+} 
+
+function getServicesJson(){
+  return new Promise((resolve, reject) => {
+    ipcMain.once(`services:setServicesJsonFile`, (event, responseData) => {
+      resolve(responseData); // Fulfill the promise with data
+    });
+
+    mainWindow.webContents.send('services:getServicesJsonFile'); // Send request to renderer
+  })
+}
+
+async function startServer(){
+  const projectPath = await getCurrentProjectPath();
+  console.log('Starting server for project:', projectPath);
+
+  const servicesJson = await getServicesJson();
+  console.log('Services JSON:', servicesJson);
+
+  // Add server start logic here
 }
 
 // IPC Handle Section !!! ------------------------------------------------------------------------------------------------------
@@ -234,6 +266,7 @@ ipcMain.handle('fs:refreshFolderStructure', async (event, folderPath) => {
 
 // Server management handlers
 ipcMain.handle('server:start', async (event, projectPath) => {
+  await startServer();
   console.log('[MAIN] Server start requested for:', projectPath);
   
   try {
