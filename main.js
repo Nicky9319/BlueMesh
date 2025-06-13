@@ -60,7 +60,7 @@ function getServicesJson() {
 
 function serviceConsoleOutput(serviceId, output) {
   mainWindow.webContents.send('services:updateConsoleOutput', serviceId, output);
-  mainWindow.webContents.send('services:updateConsoleOutput', 'collective-logs', output);  
+  mainWindow.webContents.send('services:updateConsoleOutput', 'collective-logs', output);
   // console.log(`Service ${serviceId} Output:`, output);
 };
 
@@ -107,12 +107,12 @@ function startIndividualServices(service, currentProjectPath) {
     try {
       const serviceProcess = spawnService(interpretatorPath, servicePath);
 
-    serviceProcess.stdout.on('data', (data) => {
-      serviceConsoleOutput(service.ServiceName, data.toString());
-    });
-  } catch (error) {
-    console.error(`Error starting service ${service.ServiceName}:`, error);
-  }
+      serviceProcess.stdout.on('data', (data) => {
+        serviceConsoleOutput(service.ServiceName, data.toString());
+      });
+    } catch (error) {
+      console.error(`Error starting service ${service.ServiceName}:`, error);
+    }
   }
 }
 
@@ -123,13 +123,19 @@ function startAllServices(services, currentProjectPath) {
 }
 
 async function startServer() {
-  const projectPath = await getCurrentProjectPath();
-  console.log('Starting server for project:', projectPath);
+  try {
+    const projectPath = await getCurrentProjectPath();
+    console.log('Starting server for project:', projectPath);
 
-  const servicesJson = await getServicesJson();
-  console.log('Services JSON:', servicesJson);
+    const servicesJson = await getServicesJson();
+    console.log('Services JSON:', servicesJson);
 
-  startAllServices(servicesJson, projectPath);
+    startAllServices(servicesJson, projectPath);
+    return true;
+  } catch (error) {
+    console.error('Error starting server:', error);
+    return false;
+  }
 
   // Add server start logic here
 }
@@ -333,7 +339,12 @@ ipcMain.handle('fs:refreshFolderStructure', async (event, folderPath) => {
 
 // Server management handlers
 ipcMain.handle('server:start', async (event, projectPath) => {
-  await startServer();
+  try {
+    await startServer();
+  }
+  catch (error) {
+    console.error('[MAIN] Error starting server:', error);
+  }
   console.log('[MAIN] Server start requested for:', projectPath);
 
   try {
@@ -342,14 +353,8 @@ ipcMain.handle('server:start', async (event, projectPath) => {
     }
 
     serverState = 'loading';
-    console.log('[MAIN] Server state changed to: loading');
 
-    // Simulate server startup process (replace with actual server logic)
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // TODO: Add actual server startup logic here
-    // For now, we'll simulate success
-    const success = Math.random() > 0.2; // 80% success rate for demo
+    const success = await startServer();
 
     if (success) {
       serverState = 'running';
