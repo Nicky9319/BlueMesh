@@ -19,6 +19,8 @@ let mainWindow;
 let serverProcess = null;
 let serverState = 'idle'; // Track server state in main process
 
+let servicesProcesses = {};
+
 // Variables and constants END !!! ---------------------------------------------------------------------------------------------------
 
 // Helper function to serialize dates in folder structure
@@ -106,6 +108,7 @@ function startIndividualServices(service, currentProjectPath) {
 
     try {
       const serviceProcess = spawnService(interpretatorPath, servicePath);
+      servicesProcesses[service.ServiceName] = serviceProcess;
 
       serviceProcess.stdout.on('data', (data) => {
         serviceConsoleOutput(service.ServiceName, data.toString());
@@ -120,6 +123,8 @@ function startAllServices(services, currentProjectPath) {
   services.forEach(service => {
     startIndividualServices(service, currentProjectPath);
   });
+
+  console.log('All services started successfully');
 }
 
 async function startServer() {
@@ -139,6 +144,28 @@ async function startServer() {
 
   // Add server start logic here
 }
+
+
+
+function stopIndividualService(serviceName) {
+  const serviceProcess = servicesProcesses[serviceName];
+  if (serviceProcess) {
+    serviceProcess.kill();
+    delete servicesProcesses[serviceName];
+    console.log(`Stopped service: ${serviceName}`);
+  }
+}
+
+function stopAllServices() {
+  Object.keys(servicesProcesses).forEach(serviceName => {
+    stopIndividualService(serviceName);
+  });
+}
+
+async function stopServer() {
+  stopAllServices();
+}
+
 
 // IPC Handle Section !!! ------------------------------------------------------------------------------------------------------
 
@@ -417,9 +444,7 @@ ipcMain.handle('server:stop', async (event) => {
       throw new Error('Server is not running');
     }
 
-    // TODO: Add actual server shutdown logic here
-    // For now, we'll simulate shutdown
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await stopServer();
 
     serverState = 'idle';
     console.log('[MAIN] Server stopped successfully');

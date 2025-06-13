@@ -30,7 +30,8 @@
     "lowdb": "^7.0.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.0",
-    "tailwindcss": "^4.1.7"
+    "tailwindcss": "^4.1.7",
+    "tree-kill": "^1.2.2"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^2.0.0",

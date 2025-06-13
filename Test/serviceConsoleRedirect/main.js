@@ -1,5 +1,6 @@
 const { spawn } = require('child_process');
 const fs = require('fs');
+const kill = require('tree-kill');
 const path = require('path');
 
 
@@ -23,3 +24,18 @@ py.on('close', (code) => {
     writeStream.end();
     console.log(`main.py exited with code ${code}`);
 });
+
+
+
+
+
+setTimeout(() => {
+    console.log('Killing Python process tree after 10 seconds...');
+    kill(py.pid, 'SIGTERM', (err) => {
+        if (err) {
+            console.error('Failed to kill process tree:', err);
+        } else {
+            console.log('Process tree killed successfully.');
+        }
+    });
+}, 10000);
