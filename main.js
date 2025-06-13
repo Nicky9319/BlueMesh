@@ -5,7 +5,7 @@ import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import fs from 'fs'
 import path from 'path'
-import { data } from 'react-router-dom'
+const kill = require('tree-kill');
 const { spawn } = require('child_process');
 
 // Imports and modules END !!! ---------------------------------------------------------------------------------------------------
@@ -109,6 +109,7 @@ function startIndividualServices(service, currentProjectPath) {
     try {
       const serviceProcess = spawnService(interpretatorPath, servicePath);
       servicesProcesses[service.ServiceName] = serviceProcess;
+      console.log(serviceProcess.pid);
 
       serviceProcess.stdout.on('data', (data) => {
         serviceConsoleOutput(service.ServiceName, data.toString());
@@ -150,14 +151,20 @@ async function startServer() {
 function stopIndividualService(serviceName) {
   const serviceProcess = servicesProcesses[serviceName];
   if (serviceProcess) {
-    serviceProcess.kill();
-    delete servicesProcesses[serviceName];
-    console.log(`Stopped service: ${serviceName}`);
+    console.log(typeof (serviceProcess.pid));
+    kill(serviceProcess.pid, 'SIGTERM', (err) => {
+      if (err) {
+        console.error('Failed to kill process tree:', err);
+      } else {
+        console.log('Process tree killed successfully.');
+      }
+    });
   }
 }
 
 function stopAllServices() {
   Object.keys(servicesProcesses).forEach(serviceName => {
+    console.log(serviceName);
     stopIndividualService(serviceName);
   });
 }
@@ -366,12 +373,6 @@ ipcMain.handle('fs:refreshFolderStructure', async (event, folderPath) => {
 
 // Server management handlers
 ipcMain.handle('server:start', async (event, projectPath) => {
-  try {
-    await startServer();
-  }
-  catch (error) {
-    console.error('[MAIN] Error starting server:', error);
-  }
   console.log('[MAIN] Server start requested for:', projectPath);
 
   try {
