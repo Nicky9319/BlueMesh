@@ -42,7 +42,6 @@ const ConsoleSidebar = ({
     isOpen, 
     onToggle, 
     onServiceSelect = () => {}, 
-    onConsoleUpdate = () => {},
     selectedService = null 
 }) => {
     const [expandedSections, setExpandedSections] = useState({
@@ -95,19 +94,9 @@ const ConsoleSidebar = ({
     // Helper to handle service selection
     const handleServiceSelect = (itemId, serviceData) => {
         setSelectedItem(itemId);
-
-        // Always fetch the latest output from the slice
-        let output = '';
-        if (itemId === 'collective-logs') {
-            const collective = servicesState.find(s => s.id === 'collective-logs');
-            output = collective ? collective.consoleOutput : '';
-        } else {
-            const serviceId = serviceData?.ServiceName || itemId;
-            const found = servicesState.find(s => s.id === serviceId);
-            output = found ? found.consoleOutput : '';
-        }
-        // Send the full output to parent (for tab change)
-        onServiceSelect(itemId, serviceData, output);
+        
+        // Only send the service ID and data to parent, no output
+        onServiceSelect(itemId, serviceData);
     };
 
 	const getServiceIcon = (serviceType) => {
@@ -267,5 +256,6 @@ const ConsoleSidebar = ({
 		</div>
 	);
 };
+
 
 export default ConsoleSidebar;

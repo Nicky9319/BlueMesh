@@ -1,7 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useSelector } from 'react-redux';
 
-const ConsoleMainArea = ({ consoleText, consoleEndRef }) => {
+const ConsoleMainArea = ({ selectedServiceId, consoleEndRef }) => {
   const [output, setOutput] = useState('');
+
+  // Read services from Redux store
+  const servicesState = useSelector(state => state.serverServices.services);
+  const servicesJson = useSelector(state => state.serverServices.servicesJson);
+  const services = Array.isArray(servicesJson) ? servicesJson : (servicesJson?.services || []);
 
   const containerRef = useRef(null);
   const parentRef = useRef(null);
@@ -49,12 +55,34 @@ const ConsoleMainArea = ({ consoleText, consoleEndRef }) => {
     };
   }, [parentHeight]);
 
+  // Watch for selectedServiceId changes and update output from store
   useEffect(() => {
-    // Direct assignment since stdout from Python will have real line breaks (no escaped \n)
-    setOutput(consoleText || '');
-    console.log(consoleText); // Log the consoleText to see the actual content
+    if (!selectedServiceId) {
+      setOutput('');
+      return;
+    }
+
+    let consoleOutput = '';
+    
+    if (selectedServiceId === 'collective-logs') {
+      const collective = servicesState.find(s => s.id === 'collective-logs');
+      consoleOutput = collective ? collective.consoleOutput : '';
+    } else if (selectedServiceId.startsWith('service-')) {
+      // Extract service data to get the correct service ID
+      const serviceIndex = parseInt(selectedServiceId.replace('service-', ''));
+      const serviceData = services[serviceIndex];
+      const serviceId = serviceData?.ServiceName;
+      
+      if (serviceId) {
+        const found = servicesState.find(s => s.id === serviceId);
+        consoleOutput = found ? found.consoleOutput : '';
+      }
+    }
+
+    setOutput(consoleOutput || '');
+    console.log(`[ConsoleMainArea] Updated output for service: ${selectedServiceId}`);
     console.log(`[ConsoleMainArea] Parent height: ${parentHeight}px, Container height: ${containerHeight}px`);
-  }, [consoleText, parentHeight, containerHeight]);
+  }, [selectedServiceId, servicesState, services, parentHeight, containerHeight]);
 
   return (
     <div ref={parentRef} className="flex-1 flex flex-col min-h-0">

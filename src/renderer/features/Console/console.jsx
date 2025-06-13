@@ -2,11 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import ConsoleSidebar from './components/ConsoleSidebar';
 import ConsoleMainArea from './components/ConsoleMainArea';
 
-// Helper function to process escape sequences in log message
-
 const Console = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [consoleText, setConsoleText] = useState("");
     const consoleEndRef = useRef(null);
     const [selectedService, setSelectedService] = useState(null);
 
@@ -46,20 +43,9 @@ const Console = () => {
     };
 
     // Callback for when a service is selected in the sidebar
-    // Now receives the full output as third argument
-    const handleServiceSelect = (serviceId, serviceData, fullOutput) => {
+    const handleServiceSelect = (serviceId, serviceData) => {
         setSelectedService(serviceId);
-        setConsoleText(fullOutput || "");
         setTimeout(scrollToBottom, 50);
-    };
-
-    // Callback for when the sidebar needs to update console text (e.g., for live updates)
-    // Only receives the new text to append
-    const handleConsoleUpdate = (serviceId, newText) => {
-        if (selectedService === serviceId) {
-            setConsoleText(prevText => prevText + newText);
-            setTimeout(scrollToBottom, 50);
-        }
     };
 
     return (
@@ -69,7 +55,6 @@ const Console = () => {
                 isOpen={sidebarOpen}
                 onToggle={toggleSidebar}
                 onServiceSelect={handleServiceSelect}
-                onConsoleUpdate={handleConsoleUpdate}
                 selectedService={selectedService}
             />
 
@@ -99,7 +84,7 @@ const Console = () => {
                 </div>
 
                 <ConsoleMainArea
-                    consoleText={consoleText}
+                    selectedServiceId={selectedService}
                     consoleEndRef={consoleEndRef}
                 />
             </div>
