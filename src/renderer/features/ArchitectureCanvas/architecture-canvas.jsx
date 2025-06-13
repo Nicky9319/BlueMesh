@@ -23,7 +23,7 @@ const ArchitectureCanvas = () => {
             );
         }
 
-        const services = Array.isArray(servicesJson) ? servicesJson : servicesJson.services || [];
+        const services = Array.isArray(servicesJson) ? servicesJson : [];
 
         if (services.length === 0) {
             return (
@@ -39,7 +39,7 @@ const ArchitectureCanvas = () => {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {services.map((service, index) => (
-                    <ServiceCard key={service.id || service.name || index} service={service} />
+                    <ServiceCard key={service.ServiceName || index} service={service} />
                 ))}
             </div>
         );
@@ -68,7 +68,7 @@ const ArchitectureCanvas = () => {
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-[#8B949E]">
                             Total Services: <span className="text-[#C9D1D9] font-medium">
-                                {Array.isArray(servicesJson) ? servicesJson.length : servicesJson.services?.length || 0}
+                                {Array.isArray(servicesJson) ? servicesJson.length : 0}
                             </span>
                         </span>
                         <span className="text-[#8B949E]">
