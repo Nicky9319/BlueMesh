@@ -85,10 +85,10 @@ const PythonServiceConfig = ({ onComplete }) => {
 
     return (
         <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto px-1 py-2">
                 {/* Service Name with Framework Dropdown in a single row */}
-                <div className="mb-8">
-                    <div className="flex items-center justify-between mb-1.5">
+                <div className="mb-10">
+                    <div className="flex items-center justify-between mb-2">
                         <label className="text-[#C9D1D9] text-sm font-medium">
                             Service Name <span className="text-[#F85149]">*</span>
                         </label>
@@ -98,7 +98,7 @@ const PythonServiceConfig = ({ onComplete }) => {
                         </label>
                     </div>
                     
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                         {/* Service Name Input */}
                         <div className="relative flex-1">
                             <input
@@ -185,14 +185,14 @@ const PythonServiceConfig = ({ onComplete }) => {
                 </div>
 
                 {/* Main Configuration Area */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-7 mb-6">
                     {/* Left Column - Network Settings */}
-                    <div className="space-y-5">
+                    <div className="space-y-6">
                         {/* Network Configuration */}
                         <div className="relative rounded-lg bg-gradient-to-r from-[#161B22] to-[#0D1117] p-[1px] group">
                             <div className="rounded-lg bg-[#0D1117] p-5">
-                                <div className="flex items-center mb-3">
-                                    <div className="p-1.5 rounded-md bg-[#1F6FEB]/10 mr-2.5">
+                                <div className="flex items-center mb-4">
+                                    <div className="p-1.5 rounded-md bg-[#1F6FEB]/10 mr-3">
                                         <svg className="w-3.5 h-3.5 text-[#58A6FF]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
                                         </svg>
@@ -200,8 +200,8 @@ const PythonServiceConfig = ({ onComplete }) => {
                                     <h3 className="text-[#C9D1D9] text-sm font-medium">Network Configuration</h3>
                                 </div>
                                 
-                                <div className="grid grid-cols-2 gap-4 mt-2">
-                                    <div className="space-y-1">
+                                <div className="grid grid-cols-2 gap-5 mt-3 px-1">
+                                    <div className="space-y-1.5">
                                         <label className="text-[#8B949E] text-xs">
                                             Host <span className="text-[#F85149]">*</span>
                                         </label>
@@ -221,7 +221,7 @@ const PythonServiceConfig = ({ onComplete }) => {
                                             )}
                                         </div>
                                     </div>
-                                    <div className="space-y-1">
+                                    <div className="space-y-1.5">
                                         <label className="text-[#8B949E] text-xs">
                                             Port <span className="text-[#F85149]">*</span>
                                         </label>
@@ -250,8 +250,8 @@ const PythonServiceConfig = ({ onComplete }) => {
                         {/* Security Settings */}
                         <div className="relative rounded-lg bg-gradient-to-r from-[#161B22] to-[#0D1117] p-[1px]">
                             <div className="rounded-lg bg-[#0D1117] p-5">
-                                <div className="flex items-center mb-3">
-                                    <div className="p-1.5 rounded-md bg-[#238636]/10 mr-2.5">
+                                <div className="flex items-center mb-4">
+                                    <div className="p-1.5 rounded-md bg-[#238636]/10 mr-3">
                                         <svg className="w-3.5 h-3.5 text-[#3FB950]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                         </svg>
@@ -259,7 +259,7 @@ const PythonServiceConfig = ({ onComplete }) => {
                                     <h3 className="text-[#C9D1D9] text-sm font-medium">Security Settings</h3>
                                 </div>
                                 
-                                <label className="flex items-start cursor-pointer hover:bg-[#161B22] p-2 rounded-md transition-colors">
+                                <label className="flex items-start cursor-pointer hover:bg-[#161B22] p-2.5 rounded-md transition-colors mt-1">
                                     <div className="relative flex items-center h-4">
                                         <input
                                             type="checkbox"
@@ -274,7 +274,7 @@ const PythonServiceConfig = ({ onComplete }) => {
                                     </div>
                                     <div className="ml-3">
                                         <span className="text-[#C9D1D9] text-xs font-medium">Enable CORS</span>
-                                        <p className="text-[#8B949E] text-xs mt-0.5 max-w-xs">
+                                        <p className="text-[#8B949E] text-xs mt-1 max-w-xs">
                                             Allow cross-origin requests from web browsers for better frontend integration
                                         </p>
                                     </div>
@@ -287,8 +287,8 @@ const PythonServiceConfig = ({ onComplete }) => {
                     <div>
                         <div className="relative rounded-lg bg-gradient-to-r from-[#161B22] to-[#0D1117] p-[1px] h-full">
                             <div className="rounded-lg bg-[#0D1117] p-5 h-full flex flex-col">
-                                <div className="flex items-center mb-3">
-                                    <div className="p-1.5 rounded-md bg-[#DA3633]/10 mr-2.5">
+                                <div className="flex items-center mb-4">
+                                    <div className="p-1.5 rounded-md bg-[#DA3633]/10 mr-3">
                                         <svg className="w-3.5 h-3.5 text-[#F85149]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
                                         </svg>
@@ -297,9 +297,9 @@ const PythonServiceConfig = ({ onComplete }) => {
                                 </div>
 
                                 {/* Add IP Input */}
-                                <div className="space-y-1">
+                                <div className="space-y-1.5 mb-4 px-1">
                                     <label className="text-[#8B949E] text-xs">Add Privilege IP Address</label>
-                                    <div className="flex gap-2">
+                                    <div className="flex gap-2 mt-1">
                                         <input
                                             type="text"
                                             value={newIp}
@@ -324,15 +324,15 @@ const PythonServiceConfig = ({ onComplete }) => {
                                 </div>
 
                                 {/* IP List */}
-                                <div className="mt-3 flex-1 flex flex-col">
-                                    <div className="flex items-center justify-between mb-1.5">
+                                <div className="mt-2 flex-1 flex flex-col">
+                                    <div className="flex items-center justify-between mb-2 px-1">
                                         <label className="text-[#8B949E] text-xs">Allowed IP Addresses</label>
-                                        <span className="bg-[#21262D] text-[#8B949E] text-xs px-1.5 py-0.5 rounded-full">
+                                        <span className="bg-[#21262D] text-[#8B949E] text-xs px-2 py-0.5 rounded-full">
                                             {formData.privilegeIps.length}
                                         </span>
                                     </div>
                                     
-                                    <div className="space-y-0.5 flex-1 overflow-y-auto border border-[#30363D] rounded-md bg-[#0D1117] p-1">
+                                    <div className="space-y-1 flex-1 overflow-y-auto border border-[#30363D] rounded-md bg-[#0D1117] p-1.5">
                                         {formData.privilegeIps.length === 0 ? (
                                             <div className="flex items-center justify-center h-full">
                                                 <p className="text-[#8B949E] text-xs">No IP addresses added</p>
@@ -341,10 +341,10 @@ const PythonServiceConfig = ({ onComplete }) => {
                                             formData.privilegeIps.map((ip, index) => (
                                                 <div 
                                                     key={index} 
-                                                    className="flex items-center justify-between bg-[#21262D] hover:bg-[#30363D] px-2.5 py-1.5 rounded-md transition-colors duration-200 group"
+                                                    className="flex items-center justify-between bg-[#21262D] hover:bg-[#30363D] px-3 py-1.5 rounded-md transition-colors duration-200 group"
                                                 >
                                                     <div className="flex items-center">
-                                                        <div className="w-1 h-1 bg-[#3FB950] rounded-full mr-1.5"></div>
+                                                        <div className="w-1 h-1 bg-[#3FB950] rounded-full mr-2"></div>
                                                         <span className="text-[#C9D1D9] font-mono text-xs">{ip}</span>
                                                     </div>
                                                     <button
@@ -369,7 +369,7 @@ const PythonServiceConfig = ({ onComplete }) => {
             </div>
 
             {/* Action Button */}
-            <div className="flex items-center justify-between mt-8 pt-5 border-t border-[#30363D]">
+            <div className="flex items-center justify-between mt-auto pt-5 pb-1 px-1 border-t border-[#30363D]">
                 <div className="text-[#8B949E] text-xs">
                     <span className={isFormValid() ? "text-[#3FB950]" : "text-[#F85149]"}>•</span> 
                     {isFormValid() ? "Configuration ready" : "Please fill required fields"}
