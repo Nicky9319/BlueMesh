@@ -183,13 +183,14 @@ const PythonServiceConfig = ({ onComplete }) => {
                         </div>
                     </div>
                 </div>
+                <br />
 
                 {/* Main Configuration Area */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-7 mb-6">
                     {/* Left Column - Network Settings */}
                     <div className="space-y-6">
                         {/* Network Configuration */}
-                        <div className="relative rounded-lg bg-gradient-to-r from-[#161B22] to-[#0D1117] p-[1px] group">
+                        <div className="relative rounded-lg bg-gradient-to-r from-[#161B22] to-[#0D1117] p-[1px] group mb-10">
                             <div className="rounded-lg bg-[#0D1117] p-5">
                                 <div className="flex items-center mb-4">
                                     <div className="p-1.5 rounded-md bg-[#1F6FEB]/10 mr-3">
@@ -246,6 +247,7 @@ const PythonServiceConfig = ({ onComplete }) => {
                                 </div>
                             </div>
                         </div>
+                        
 
                         {/* Security Settings */}
                         <div className="relative rounded-lg bg-gradient-to-r from-[#161B22] to-[#0D1117] p-[1px]">
