@@ -8,6 +8,7 @@ import path from 'path'
 const kill = require('tree-kill');
 const { spawn } = require('child_process');
 
+
 // Imports and modules END !!! ---------------------------------------------------------------------------------------------------
 
 
@@ -20,6 +21,8 @@ let serverProcess = null;
 let serverState = 'idle'; // Track server state in main process
 
 let servicesProcesses = {};
+
+const isDev = process.env.NODE_ENV === 'development';
 
 // Variables and constants END !!! ---------------------------------------------------------------------------------------------------
 
@@ -203,27 +206,155 @@ async function restartServer() {
 
 // Adding New Service Functions
 async function addNewPythonService(serviceInformation) {
-  console.log('Adding new Python service:', serviceInformation);
   try {
-    // Set project base path
-    const projectBase = await getCurrentProjectPath().then((path) => path);
+    // 1️⃣ Normalize project root for Windows vs. WSL
+    const currentProject = await getCurrentProjectPath();
+    const rawPath        = currentProject.trim();
+    const wslPrefix      = '\\\\wsl.localhost\\\\';
+    let projectBase;
+    if (rawPath.startsWith(wslPrefix)) {
+      const parts      = rawPath.slice(wslPrefix.length).split('\\');
+      const distro     = parts.shift();
+      projectBase      = [wslPrefix + distro, ...parts].join('\\');
+      console.log(`→ [WSL] using UNC share: ${projectBase}`);
+    } else {
+      projectBase = rawPath;
+      console.log(`→ [Win] using native path: ${projectBase}`);
+    }
 
-    // Create service folder
+    // 2️⃣ Load template from ServiceTemplate/<lang>/<framework>/HTTP_SERVICE.txt
+    const electronRes = isDev ? path.resolve(__dirname, '../..', 'resources') : process.resourcesPath;
+
+    // Access ServiceTemplates folder
+    const templateRoot = path.join(electronRes, 'ServiceTemplates');
+    const templateDir = path.join(templateRoot, serviceInformation.language);
+
+    console.log('Resources Path:', electronRes);
+    console.log('Template Directory:', templateDir);
+
+
+    const templatePath = path.join(templateDir, 'HTTP_SERVICE.txt');
+    if (!fs.existsSync(templatePath)) {
+      throw new Error(`Template not found at ${templatePath}`);
+    }
+    let content = fs.readFileSync(templatePath, 'utf8');
+
+    // 3️⃣ Create service directory
     const svcFolderName = `service_${serviceInformation.serviceName}Service`;
-    const svcDir = path.join(projectBase, svcFolderName);
+    const svcDir        = path.join(projectBase, svcFolderName);
     fs.mkdirSync(svcDir, { recursive: true });
     console.log(`Created folder: ${svcDir}`);
 
-    // Write a simple Python file
+    // 4️⃣ Replace HOST block, preserving indent
+    content = content.replace(
+      /^([ \t]*)#<HTTP_SERVER_HOST_START>[\s\S]*?^[ \t]*#<HTTP_SERVER_HOST_END>/m,
+      (match, indent) => {
+        return [
+          `${indent}#<HTTP_SERVER_HOST_START>`,
+          `${indent}httpServerHost = "${serviceInformation.host}"`,
+          `${indent}#<HTTP_SERVER_HOST_END>`
+        ].join('\n');
+      }
+    );
+
+    // 5️⃣ Replace PORT block
+    content = content.replace(
+      /^([ \t]*)#<HTTP_SERVER_PORT_START>[\s\S]*?^[ \t]*#<HTTP_SERVER_PORT_END>/m,
+      (match, indent) => {
+        return [
+          `${indent}#<HTTP_SERVER_PORT_START>`,
+          `${indent}httpServerPort = ${serviceInformation.port}`,
+          `${indent}#<HTTP_SERVER_PORT_END>`
+        ].join('\n');
+      }
+    );
+
+    // 6️⃣ Replace PRIVILEGED IPS block
+    content = content.replace(
+      /^([ \t]*)#<HTTP_SERVER_PRIVILEGED_IP_ADDRESS_START>[\s\S]*?^[ \t]*#<HTTP_SERVER_PRIVILEGED_IP_ADDRESS_END>/m,
+      (match, indent) => {
+        const ips = serviceInformation.privilegeIps
+          .map(ip => `"${ip}"`)
+          .join(', ');
+        return [
+          `${indent}#<HTTP_SERVER_PRIVILEGED_IP_ADDRESS_START>`,
+          `${indent}httpServerPrivilegedIpAddress = [${ips}]`,
+          `${indent}#<HTTP_SERVER_PRIVILEGED_IP_ADDRESS_END>`
+        ].join('\n');
+      }
+    );
+
+    // 7️⃣ Replace CORS block
+    content = content.replace(
+      /^([ \t]*)#<HTTP_SERVER_CORS_ADDITION_START>[\s\S]*?^[ \t]*#<HTTP_SERVER_CORS_ADDITION_END>/m,
+      (match, indent) => {
+        const line = `self.app.add_middleware(CORSMiddleware, allow_origins=["*"],allow_credentials=True,allow_methods=["*"],allow_headers=["*"],)`;
+        const body = serviceInformation.cors
+          ? `${indent}${line}`
+          : `${indent}# ${line}`;
+        return [
+          `${indent}#<HTTP_SERVER_CORS_ADDITION_START>`,
+          body,
+          `${indent}#<HTTP_SERVER_CORS_ADDITION_END>`
+        ].join('\n');
+      }
+    );
+
+    // 8️⃣ Write service file
     const svcFileName = `${serviceInformation.serviceName.toLowerCase()}-service.py`;
     const svcFilePath = path.join(svcDir, svcFileName);
-    const content = `# ${serviceInformation.serviceName} Python Service\nprint("Hello from ${serviceInformation.serviceName} service!")\n`;
     fs.writeFileSync(svcFilePath, content, 'utf8');
     console.log(`Wrote service file: ${svcFilePath}`);
 
+    // 9️⃣ Update services.json
+    const servicesJsonPath = path.join(projectBase, 'services.json');
+    let services = [];
+    if (fs.existsSync(servicesJsonPath)) {
+      services = JSON.parse(fs.readFileSync(servicesJsonPath, 'utf8'));
+    }
+    services.push({
+      ServiceLanguage:               serviceInformation.language,
+      ServiceFramework:              serviceInformation.framework,
+      ServiceName:                   serviceInformation.serviceName,
+      ServiceFolderName:             svcFolderName,
+      ServiceFileName:               svcFileName,
+      ServiceHttpHost:               serviceInformation.host,
+      ServiceHttpPrivilegedIpAddress:serviceInformation.privilegeIps,
+      ServiceHttpPort:               serviceInformation.port,
+      ServiceType:                   "HTTP_SERVICE"
+    });
+    fs.writeFileSync(
+      servicesJsonPath,
+      JSON.stringify(services, null, 2),
+      'utf8'
+    );
+    console.log(`Updated services.json at ${servicesJsonPath}`);
+
+    // 🔟 Update .env
+    const envPath = path.join(projectBase, '.env');
+    let envContent = fs.existsSync(envPath)
+      ? fs.readFileSync(envPath, 'utf8')
+      : '';
+    const varName = `${serviceInformation.serviceName.toUpperCase()}_SERVICE`;
+    const varLine = `${varName}="${serviceInformation.host}:${serviceInformation.port}"`;
+    envContent = envContent
+      .replace(
+        /#<ADD_DEVELOPMENT_SERVICES_ENVRIONMENT_VARIABLES>/,
+        match => `${match}\n${varLine}`
+      )
+      .replace(
+        /#<ADD_PRODUCTION_SERVICES_ENVRIONMENT_VARIABLES>/,
+        match => `${match}\n# ${varLine}`
+      );
+    fs.writeFileSync(envPath, envContent, 'utf8');
+    console.log(`Updated .env at ${envPath}`);
+
+    console.log('✅ Python service added successfully!');
+    
     return true;
   } catch (err) {
     console.error('Error in addNewPythonService:', err);
+    return false;
   }
 }
 
