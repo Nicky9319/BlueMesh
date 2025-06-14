@@ -204,44 +204,25 @@ async function restartServer() {
 // Adding New Service Functions
 async function addNewPythonService(serviceInformation) {
   try {
-    const wslPrefix = "\\\\wsl.localhost\\";
-    let currentProjectPath = await getCurrentProjectPath();
-    let servicePath = currentProjectPath.path.trim();
-    let isWSL = servicePath.startsWith(wslPrefix);
+    // Set project base path
+    const projectBase = getCurrentProjectPath().trim();
 
-    let linuxServicePath = servicePath;
-    let wslDistro = "";
+    // Create service folder
+    const svcFolderName = `service_${serviceInformation.serviceName}Service`;
+    const svcDir = path.join(projectBase, svcFolderName);
+    fs.mkdirSync(svcDir, { recursive: true });
+    console.log(`Created folder: ${svcDir}`);
 
-    if (isWSL) {
-      console.log("Detected WSL path.");
-      console.log(`WSL Path: ${servicePath}`);
-      
-      // Extract distro name and convert path to Linux style
-      const serviceParts = servicePath.slice(wslPrefix.length).split("\\");
-      wslDistro = serviceParts.shift();
-      linuxServicePath = "/" + serviceParts.join("/");
-
-      // --- 🔧 Place your WSL-specific business logic here ---
-      console.log("Detected WSL path.");
-      console.log(`WSL Distro: ${wslDistro}`);
-      console.log(`Linux-style service path: ${linuxServicePath}`);
-
-      // Example: You can now call spawnService or other WSL operations
-      // const result = spawnService(interpreterPath, servicePath);
-
-    } else {
-      // --- 🔧 Place your Windows-specific business logic here ---
-      console.log("Detected native Windows path.");
-      console.log(`Windows-style service path: ${servicePath}`);
-
-      // Proceed with normal Windows service logic
-      // e.g., validate path, load service files, etc.
-    }
-  } catch (error) {
-    console.error("Error adding new Python service:", error);
+    // Write a simple Python file
+    const svcFileName = `${serviceInformation.serviceName.toLowerCase()}-service.py`;
+    const svcFilePath = path.join(svcDir, svcFileName);
+    const content = `# ${serviceInformation.serviceName} Python Service\nprint("Hello from ${serviceInformation.serviceName} service!")\n`;
+    fs.writeFileSync(svcFilePath, content, 'utf8');
+    console.log(`Wrote service file: ${svcFilePath}`);
+  } catch (err) {
+    console.error('Error in addNewPythonService:', err);
   }
 }
-
 
 // IPC Handle Section !!! ------------------------------------------------------------------------------------------------------
 
@@ -618,25 +599,34 @@ ipcMain.handle('server:getStatus', async (event) => {
 
 // Service management handlers
 ipcMain.handle('service:addService', async (event, serviceInfo) => {
-  if (serviceInfo.ServiceName === "python") {
-    let success = await addNewPythonService(serviceInfo)
-    if (success == true) {
-      return {
-        "status": "success",
-        "message": "Python service added successfully"
+  if (serviceInfo.language === "python") {
+    if (serviceInfo.framework == "fastapi") {
+      let success = await addNewPythonService(serviceInfo)
+      if (success == true) {
+        return {
+          "status": "success",
+          "message": "Python service added successfully"
+        }
       }
+      else {
+        return {
+          "status": "error",
+          "message": "Currently only FastAPI Python Framework Services are supported"
+        }
+      }
+
     }
     else {
       return {
         "status": "error",
-        "message": "Failed to add Python service"
+        "message": "Currently only Dealing with Python Language Services"
       }
     }
   }
   else {
     return {
       "status": "error",
-      "message": "Currently only Dealing with Python Language Services"
+      "message": "Failed to add Python service"
     }
   }
 });
