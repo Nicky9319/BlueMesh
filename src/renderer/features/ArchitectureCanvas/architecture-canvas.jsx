@@ -10,8 +10,8 @@ const ArchitectureCanvas = () => {
     const [view, setView] = useState('grid');
 
     useEffect(() => {
-        console.log('ArchitectureCanvas mounted');
-        console.log('Services JSON:', servicesJson);
+        // console.log('ArchitectureCanvas mounted');
+        // console.log('Services JSON:', servicesJson);
     }, [servicesJson]);
 
     const renderEmptyState = (title, message) => (
@@ -39,11 +39,15 @@ const ArchitectureCanvas = () => {
 
     const renderServices = () => {
         if (!servicesJson) {
+            // console.log("No servicesJson available");
             return renderEmptyState(
                 "No services data available", 
                 "Load a project to view service architecture"
             );
         }
+
+        // console.log("servicesJson", servicesJson);
+        // console.log("typeof", typeof servicesJson, "Array?", Array.isArray(servicesJson));
 
         const services = Array.isArray(servicesJson) ? servicesJson : [];
 

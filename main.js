@@ -555,6 +555,20 @@ ipcMain.handle('fs:refreshFolderStructure', async (event, folderPath) => {
   }
 });
 
+ipcMain.handle('project:getServicesJson', async (event) => {
+  const projectPath = await getCurrentProjectPath();
+  const servicesJsonPath = path.join(projectPath, 'services.json');
+
+  try {
+    const services = JSON.parse(fs.readFileSync(servicesJsonPath, 'utf8'));
+    console.log('Services JSON read successfully:', services);
+    return { success: true, services };
+  } catch (error) {
+    console.error('Failed to read services.json:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 // Server management handlers
 ipcMain.handle('server:start', async (event, projectPath) => {
   console.log('[MAIN] Server start requested for:', projectPath);
@@ -738,6 +752,7 @@ ipcMain.handle('service:addService', async (event, serviceInfo) => {
       try {
         let success = await addNewPythonService(serviceInfo)
         if (success == true) {
+          mainWindow.webContents.send('service:newServiceAdded', serviceInfo); 
           return {
             "status": "success",
             "message": "Python service added successfully"

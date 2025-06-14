@@ -69,12 +69,13 @@ const serverServicesSlice = createSlice({
     initialState,
     reducers: {
         addService: (state, action) => {
+            //  console.log(action.payload);
             state.services.push({
                 id: action.payload.id,
                 consoleOutput: action.payload.consoleOutput || ""
             });
             // Log a shallow copy to see the real array
-            console.log('[ServerServicesSlice] New services state:', [...state.services]);
+            // console.log('[ServerServicesSlice] New services state:', [...state.services]);
         },
         updateConsoleOutput: (state, action) => {
             // action.payload: { id, consoleOutput }
@@ -88,6 +89,7 @@ const serverServicesSlice = createSlice({
             state.services = state.services.filter(s => s.id !== action.payload);
         },
         setServicesJson: (state, action) => {
+            // console.log('[ServerServicesSlice] Setting servicesJson:', action.payload);
             state.servicesJson = action.payload;
         },
         appendConsoleOutput: (state, action) => {
