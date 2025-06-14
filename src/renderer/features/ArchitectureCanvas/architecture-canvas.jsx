@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ServiceCard from './components/ServiceCard';
-import AddServiceModal from './components/AddServiceModal';
+import AddServiceModal from '../AddService/AddServiceModal';
 
 const ArchitectureCanvas = () => {
     const servicesJson = useSelector(state => state.serverServices.servicesJson);
