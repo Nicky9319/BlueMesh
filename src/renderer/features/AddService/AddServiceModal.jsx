@@ -1,33 +1,17 @@
 import React, { useState } from 'react';
+import PythonServiceConfig from './components/PythonServiceConfig';
 
 const AddServiceModal = ({ isOpen, onClose }) => {
-    const [formData, setFormData] = useState({
-        serviceName: '',
-        serviceType: 'web',
-        description: '',
-        port: '',
-        technology: ''
-    });
+    const [selectedLanguage, setSelectedLanguage] = useState('python');
+    const [showConfig, setShowConfig] = useState(false);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // TODO: Add service creation logic here
-        console.log('Creating service:', formData);
-        onClose();
-        setFormData({
-            serviceName: '',
-            serviceType: 'web',
-            description: '',
-            port: '',
-            technology: ''
-        });
+    const handleLanguageSelect = (language) => {
+        setSelectedLanguage(language);
+        setShowConfig(true);
     };
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+    const handleConfigComplete = () => {
+        onClose();
     };
 
     if (!isOpen) return null;
@@ -48,109 +32,52 @@ const AddServiceModal = ({ isOpen, onClose }) => {
                     </button>
                 </div>
 
-                {/* Modal Form */}
-                <div className="flex-1 overflow-y-auto">
-                    <form onSubmit={handleSubmit} className="space-y-6 h-full flex flex-col">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
-                            {/* Service Name */}
-                            <div>
-                                <label className="block text-[#C9D1D9] text-sm font-medium mb-3">
-                                    Service Name *
-                                </label>
-                                <input
-                                    type="text"
-                                    name="serviceName"
-                                    value={formData.serviceName}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full px-4 py-3 bg-[#0D1117] border border-[#30363D] rounded-md text-[#C9D1D9] placeholder-[#8B949E] focus:outline-none focus:ring-2 focus:ring-[#1F6FEB] focus:border-transparent text-lg"
-                                    placeholder="Enter service name"
-                                />
-                            </div>
-
-                            {/* Service Type */}
-                            <div>
-                                <label className="block text-[#C9D1D9] text-sm font-medium mb-3">
-                                    Service Type
-                                </label>
-                                <select
-                                    name="serviceType"
-                                    value={formData.serviceType}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-[#0D1117] border border-[#30363D] rounded-md text-[#C9D1D9] focus:outline-none focus:ring-2 focus:ring-[#1F6FEB] focus:border-transparent text-lg"
-                                >
-                                    <option value="web">Web Service</option>
-                                    <option value="api">API Service</option>
-                                    <option value="database">Database</option>
-                                    <option value="microservice">Microservice</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-
-                            {/* Technology */}
-                            <div>
-                                <label className="block text-[#C9D1D9] text-sm font-medium mb-3">
-                                    Technology
-                                </label>
-                                <input
-                                    type="text"
-                                    name="technology"
-                                    value={formData.technology}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-[#0D1117] border border-[#30363D] rounded-md text-[#C9D1D9] placeholder-[#8B949E] focus:outline-none focus:ring-2 focus:ring-[#1F6FEB] focus:border-transparent text-lg"
-                                    placeholder="e.g., Node.js, Python, React"
-                                />
-                            </div>
-
-                            {/* Port */}
-                            <div>
-                                <label className="block text-[#C9D1D9] text-sm font-medium mb-3">
-                                    Port
-                                </label>
-                                <input
-                                    type="number"
-                                    name="port"
-                                    value={formData.port}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-[#0D1117] border border-[#30363D] rounded-md text-[#C9D1D9] placeholder-[#8B949E] focus:outline-none focus:ring-2 focus:ring-[#1F6FEB] focus:border-transparent text-lg"
-                                    placeholder="e.g., 3000, 8080"
-                                />
-                            </div>
-
-                            {/* Description - Full Width */}
-                            <div className="md:col-span-2">
-                                <label className="block text-[#C9D1D9] text-sm font-medium mb-3">
-                                    Description
-                                </label>
-                                <textarea
-                                    name="description"
-                                    value={formData.description}
-                                    onChange={handleChange}
-                                    rows="6"
-                                    className="w-full px-4 py-3 bg-[#0D1117] border border-[#30363D] rounded-md text-[#C9D1D9] placeholder-[#8B949E] focus:outline-none focus:ring-2 focus:ring-[#1F6FEB] focus:border-transparent resize-none text-lg"
-                                    placeholder="Brief description of the service"
-                                />
-                            </div>
+                {/* Language Selection - always visible */}
+                <div className="flex gap-4 mb-6">
+                    <button
+                        onClick={() => setSelectedLanguage('python')}
+                        className={`px-4 py-2 rounded-md ${
+                            selectedLanguage === 'python'
+                                ? 'bg-[#1F6FEB] text-white'
+                                : 'bg-[#21262D] text-[#C9D1D9]'
+                        }`}
+                    >
+                        Python
+                    </button>
+                    <div className="relative group">
+                        <button
+                            disabled
+                            className="px-4 py-2 rounded-md bg-[#21262D] text-[#8B949E] opacity-50 cursor-not-allowed flex items-center gap-2"
+                        >
+                            JavaScript <span>🔒</span>
+                        </button>
+                        <div className="absolute hidden group-hover:block bg-[#30363D] text-[#C9D1D9] px-2 py-1 rounded text-sm -top-8">
+                            Coming Soon
                         </div>
-
-                        {/* Modal Actions */}
-                        <div className="flex gap-4 pt-6 border-t border-[#30363D] flex-shrink-0">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="flex-1 px-6 py-3 border border-[#30363D] text-[#C9D1D9] rounded-md hover:bg-[#30363D] transition-colors text-lg"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                className="flex-1 px-6 py-3 bg-[#1F6FEB] hover:bg-[#58A6FF] text-white rounded-md transition-colors font-medium text-lg"
-                            >
-                                Create Service
-                            </button>
+                    </div>
+                    <div className="relative group">
+                        <button
+                            disabled
+                            className="px-4 py-2 rounded-md bg-[#21262D] text-[#8B949E] opacity-50 cursor-not-allowed flex items-center gap-2"
+                        >
+                            Java <span>🔒</span>
+                        </button>
+                        <div className="absolute hidden group-hover:block bg-[#30363D] text-[#C9D1D9] px-2 py-1 rounded text-sm -top-8">
+                            Coming Soon
                         </div>
-                    </form>
+                    </div>
                 </div>
+
+                {/* Content below changes based on selectedLanguage */}
+                {selectedLanguage === 'python' ? (
+                    <PythonServiceConfig onComplete={handleConfigComplete} />
+                ) : (
+                    <div className="text-[#C9D1D9] text-lg text-center mt-4">
+                        Coming Soon
+                    </div>
+                )}
+
+                {/* ...existing modal actions or footer if any... */}
             </div>
         </div>
     );
