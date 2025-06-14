@@ -27,6 +27,7 @@
     "electron-log": "^5.4.0",
     "electron-store": "^10.0.1",
     "firebase": "^11.7.3",
+    "framer-motion": "^12.18.1",
     "lowdb": "^7.0.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.0",
