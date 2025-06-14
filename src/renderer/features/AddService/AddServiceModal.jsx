@@ -17,28 +17,36 @@ const AddServiceModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-[#0D1117] border border-[#30363D] rounded-lg shadow-2xl w-[88vw] max-w-6xl h-[85vh] flex flex-col overflow-hidden">
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-[#0D1117] border border-[#30363D] rounded-xl shadow-2xl w-[90vw] max-w-6xl h-[88vh] flex flex-col overflow-hidden transition-all duration-300 animate-fadeIn">
                 {/* Modal Header */}
-                <div className="flex items-center justify-between px-8 py-4 border-b border-[#30363D] bg-[#161B22]">
-                    <h1 className="font-semibold text-[#C9D1D9] text-xl">Create New Service</h1>
+                <div className="flex items-center justify-between px-8 py-5 border-b border-[#30363D] bg-gradient-to-r from-[#161B22] to-[#0D1117]">
+                    <div className="flex items-center gap-3">
+                        <div className="p-1.5 rounded-md bg-[#1F6FEB]/20">
+                            <svg className="w-5 h-5 text-[#58A6FF]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </div>
+                        <h1 className="font-semibold text-[#C9D1D9] text-xl tracking-tight">Create New Service</h1>
+                    </div>
                     <button 
                         onClick={onClose}
-                        className="text-[#8B949E] hover:text-[#C9D1D9] transition-colors p-1 rounded-md hover:bg-[#30363D]"
+                        className="text-[#8B949E] hover:text-[#C9D1D9] transition-colors p-1.5 rounded-full hover:bg-[#30363D] group focus:outline-none focus:ring-2 focus:ring-[#1F6FEB]/50"
+                        aria-label="Close modal"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 transform group-hover:rotate-90 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
                 {/* Language Selection - always visible */}
-                <div className="flex gap-4 px-8 py-4 border-b border-[#30363D] bg-[#0D1117]">
+                <div className="flex gap-3 px-8 py-4 border-b border-[#30363D] bg-[#0D1117]">
                     <button
                         onClick={() => setSelectedLanguage('python')}
-                        className={`px-4 py-2 rounded-md transition-colors duration-200 text-sm flex items-center gap-2
+                        className={`px-4 py-2.5 rounded-lg transition-all duration-200 text-sm flex items-center gap-2.5
                             ${selectedLanguage === 'python'
-                                ? 'bg-[#1F6FEB]/20 text-[#58A6FF] border border-[#1F6FEB]/40'
+                                ? 'bg-[#1F6FEB]/20 text-[#58A6FF] border border-[#1F6FEB]/40 font-medium shadow-sm'
                                 : 'bg-[#21262D] text-[#C9D1D9] hover:bg-[#30363D] border border-transparent'
                             }`}
                     >
@@ -47,6 +55,7 @@ const AddServiceModal = ({ isOpen, onClose }) => {
                         </svg>
                         Python
                     </button>
+                    
                     <div className="relative group">
                         <button
                             disabled
@@ -77,14 +86,19 @@ const AddServiceModal = ({ isOpen, onClose }) => {
                     </div>
                 </div>
 
-                {/* Content Container with Padding */}
-                <div className="flex-1 overflow-hidden px-8 py-6">
-                    {/* Content below changes based on selectedLanguage */}
+                {/* Content Container with Enhanced Padding */}
+                <div className="flex-1 overflow-hidden px-8 py-6 bg-gradient-to-b from-[#0D1117] to-[#0D1117]">
+                    {/* Content based on selectedLanguage */}
                     {selectedLanguage === 'python' ? (
                         <PythonServiceConfig onComplete={handleConfigComplete} />
                     ) : (
-                        <div className="text-[#C9D1D9] text-xl text-center mt-8">
-                            Coming Soon
+                        <div className="text-[#C9D1D9] text-xl text-center mt-8 flex flex-col items-center justify-center h-full">
+                            <div className="bg-[#21262D]/50 p-6 rounded-xl">
+                                <svg className="w-16 h-16 text-[#8B949E] mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                                <p className="font-medium">Support for this language is coming soon</p>
+                            </div>
                         </div>
                     )}
                 </div>
