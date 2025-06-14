@@ -9,7 +9,9 @@ const PythonServiceConfig = ({ onComplete }) => {
         host: '127.0.0.1',
         port: Math.floor(Math.random() * (9999 - 3000 + 1)) + 3000,
         privilegeIps: ['127.0.0.1'],
-        cors: true
+        cors: true,
+        language: 'python',
+        framework: 'fastapi'
     });
 
     const [newIp, setNewIp] = useState('');
@@ -82,6 +84,15 @@ const PythonServiceConfig = ({ onComplete }) => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    // Update framework in formData when selectedFramework changes
+    useEffect(() => {
+        setFormData(prev => ({
+            ...prev,
+            language: 'python',
+            framework: selectedFramework
+        }));
+    }, [selectedFramework]);
 
     return (
         <div className="flex flex-col h-full">
