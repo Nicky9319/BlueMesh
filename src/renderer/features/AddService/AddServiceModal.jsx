@@ -17,14 +17,14 @@ const AddServiceModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-[#0D1117] border border-[#30363D] rounded-lg p-8 w-[80vw] h-[80vh] mx-4 shadow-xl flex flex-col">
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
+            <div className="bg-[#0D1117] border border-[#30363D] rounded-lg shadow-2xl w-[85vw] h-[85vh] flex flex-col overflow-hidden">
                 {/* Modal Header */}
-                <div className="flex items-center justify-between mb-6 flex-shrink-0">
-                    <h2 className="text-2xl font-bold text-[#C9D1D9]">Add New Service</h2>
+                <div className="flex items-center justify-between px-8 py-5 border-b border-[#30363D] bg-[#161B22]">
+                    <h1 className="font-bold text-[#C9D1D9] text-2xl">Add New Service</h1>
                     <button 
                         onClick={onClose}
-                        className="text-[#8B949E] hover:text-[#C9D1D9] transition-colors p-1"
+                        className="text-[#8B949E] hover:text-[#C9D1D9] transition-colors p-1 rounded-md hover:bg-[#30363D]"
                     >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -33,13 +33,13 @@ const AddServiceModal = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* Language Selection - always visible */}
-                <div className="flex gap-4 mb-6">
+                <div className="flex gap-4 px-8 py-4 border-b border-[#30363D] bg-[#0D1117]">
                     <button
                         onClick={() => setSelectedLanguage('python')}
-                        className={`px-4 py-2 rounded-md ${
+                        className={`px-5 py-2 rounded-lg font-medium transition-colors duration-200 text-sm ${
                             selectedLanguage === 'python'
-                                ? 'bg-[#1F6FEB] text-white'
-                                : 'bg-[#21262D] text-[#C9D1D9]'
+                                ? 'bg-[#1F6FEB] text-white shadow-sm'
+                                : 'bg-[#21262D] text-[#C9D1D9] hover:bg-[#30363D]'
                         }`}
                     >
                         Python
@@ -47,37 +47,38 @@ const AddServiceModal = ({ isOpen, onClose }) => {
                     <div className="relative group">
                         <button
                             disabled
-                            className="px-4 py-2 rounded-md bg-[#21262D] text-[#8B949E] opacity-50 cursor-not-allowed flex items-center gap-2"
+                            className="px-5 py-2 rounded-lg bg-[#21262D] text-[#8B949E] opacity-50 cursor-not-allowed flex items-center gap-2"
                         >
                             JavaScript <span>🔒</span>
                         </button>
-                        <div className="absolute hidden group-hover:block bg-[#30363D] text-[#C9D1D9] px-2 py-1 rounded text-sm -top-8">
+                        <div className="absolute hidden group-hover:block bg-[#30363D] text-[#C9D1D9] px-3 py-1.5 rounded text-xs -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap shadow-lg z-10">
                             Coming Soon
                         </div>
                     </div>
                     <div className="relative group">
                         <button
                             disabled
-                            className="px-4 py-2 rounded-md bg-[#21262D] text-[#8B949E] opacity-50 cursor-not-allowed flex items-center gap-2"
+                            className="px-5 py-2 rounded-lg bg-[#21262D] text-[#8B949E] opacity-50 cursor-not-allowed flex items-center gap-2"
                         >
                             Java <span>🔒</span>
                         </button>
-                        <div className="absolute hidden group-hover:block bg-[#30363D] text-[#C9D1D9] px-2 py-1 rounded text-sm -top-8">
+                        <div className="absolute hidden group-hover:block bg-[#30363D] text-[#C9D1D9] px-3 py-1.5 rounded text-xs -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap shadow-lg z-10">
                             Coming Soon
                         </div>
                     </div>
                 </div>
 
-                {/* Content below changes based on selectedLanguage */}
-                {selectedLanguage === 'python' ? (
-                    <PythonServiceConfig onComplete={handleConfigComplete} />
-                ) : (
-                    <div className="text-[#C9D1D9] text-lg text-center mt-4">
-                        Coming Soon
-                    </div>
-                )}
-
-                {/* ...existing modal actions or footer if any... */}
+                {/* Content Container with Padding */}
+                <div className="flex-1 overflow-hidden px-8 py-6">
+                    {/* Content below changes based on selectedLanguage */}
+                    {selectedLanguage === 'python' ? (
+                        <PythonServiceConfig onComplete={handleConfigComplete} />
+                    ) : (
+                        <div className="text-[#C9D1D9] text-xl text-center mt-8">
+                            Coming Soon
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
