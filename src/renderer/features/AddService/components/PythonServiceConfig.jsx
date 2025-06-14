@@ -86,26 +86,50 @@ const PythonServiceConfig = ({ onComplete }) => {
     return (
         <div className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto">
-                {/* Service Name with Framework Dropdown */}
+                {/* Service Name with Framework Dropdown in a single row */}
                 <div className="mb-10">
                     <div className="flex items-center justify-between mb-2">
                         <label className="block text-[#C9D1D9] text-base font-medium">
                             Service Name <span className="text-[#F85149]">*</span>
                         </label>
                         
+                        <label className="text-[#8B949E] text-sm">
+                            Framework
+                        </label>
+                    </div>
+                    
+                    <div className="flex gap-3">
+                        {/* Service Name Input */}
+                        <div className="relative flex-1">
+                            <input
+                                type="text"
+                                name="serviceName"
+                                value={formData.serviceName}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-4 py-2.5 bg-[#161B22] border border-[#30363D] rounded-md text-[#C9D1D9] placeholder-[#8B949E] focus:outline-none focus:ring-1 focus:ring-[#1F6FEB] focus:border-[#1F6FEB] transition-all duration-200"
+                                placeholder="Enter a name for your Python service"
+                            />
+                            {!formData.serviceName && (
+                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <span className="text-[#F85149] text-xs">Required</span>
+                                </div>
+                            )}
+                        </div>
+                        
                         {/* Framework Dropdown */}
                         <div className="relative" ref={dropdownRef}>
                             <button
                                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                                className="flex items-center gap-2 text-xs bg-[#161B22] border border-[#30363D] px-3 py-1.5 rounded-md text-[#C9D1D9] hover:bg-[#21262D] transition-colors"
+                                className="h-full px-4 py-2.5 bg-[#161B22] border border-[#30363D] rounded-md text-[#C9D1D9] hover:bg-[#21262D] transition-all duration-200 flex items-center gap-2"
                             >
                                 {selectedFramework === 'fastapi' && (
-                                    <svg className="w-3 h-3 text-[#58A6FF]" viewBox="0 0 24 24" fill="currentColor">
+                                    <svg className="w-4 h-4 text-[#58A6FF]" viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12c6.616 0 12-5.383 12-12S18.616 0 12 0zm0 4.25A7.751 7.751 0 0119.75 12 7.751 7.751 0 0112 19.75 7.751 7.751 0 014.25 12 7.751 7.751 0 0112 4.25zm0 3.141L7.391 12 12 16.609 16.609 12 12 7.391z"/>
                                     </svg>
                                 )}
-                                {selectedFramework === 'fastapi' ? 'FastAPI' : selectedFramework}
-                                <svg className={`w-2.5 h-2.5 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <span>{selectedFramework === 'fastapi' ? 'FastAPI' : selectedFramework}</span>
+                                <svg className={`w-3 h-3 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
@@ -157,23 +181,6 @@ const PythonServiceConfig = ({ onComplete }) => {
                                 </div>
                             )}
                         </div>
-                    </div>
-                    
-                    <div className="relative">
-                        <input
-                            type="text"
-                            name="serviceName"
-                            value={formData.serviceName}
-                            onChange={handleChange}
-                            required
-                            className="w-full px-4 py-2.5 bg-[#161B22] border border-[#30363D] rounded-md text-[#C9D1D9] placeholder-[#8B949E] focus:outline-none focus:ring-1 focus:ring-[#1F6FEB] focus:border-[#1F6FEB] transition-all duration-200"
-                            placeholder="Enter a name for your Python service"
-                        />
-                        {!formData.serviceName && (
-                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                <span className="text-[#F85149] text-xs">Required</span>
-                            </div>
-                        )}
                     </div>
                 </div>
 
