@@ -14,7 +14,6 @@ import {
 let dbApi = { initDb, getAgentsInfo, addAgentInfo, updateAgentEnvVariable };
 
 
-
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', {
@@ -69,6 +68,8 @@ if (process.contextIsolated) {
       onGetServicesJsonFile: (callback) => ipcRenderer.on('services:getServicesJsonFile', callback),
       removeGetServicesJsonFileListener: () => ipcRenderer.removeAllListeners('services:getServicesJsonFile'),
       sendServicesJsonFile: (servicesJsonFile) => ipcRenderer.send('services:setServicesJsonFile', servicesJsonFile),
+      addService: (serviceData) => ipcRenderer.invoke('service:addService', serviceData)
+
     });
 
     contextBridge.exposeInMainWorld('project', {
@@ -76,6 +77,7 @@ if (process.contextIsolated) {
       removeGetProjectPathListener: () => ipcRenderer.removeAllListeners('project:getProjectPath'),
       sendProjectPath: (projectPath) => ipcRenderer.send('project:setProjectPath', projectPath),
     })
+
 
   }
   catch (error) {

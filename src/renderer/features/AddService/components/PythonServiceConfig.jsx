@@ -16,6 +16,7 @@ const PythonServiceConfig = ({ onComplete }) => {
 
     const [newIp, setNewIp] = useState('');
     const [ipError, setIpError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -59,10 +60,21 @@ const PythonServiceConfig = ({ onComplete }) => {
         }));
     };
 
-    const handleAddService = () => {
-        console.log('new service add functionality called');
-        console.log(formData);
-        onComplete();
+    const handleAddService = async () => {
+        setLoading(true);
+        try {
+            const result = await window.services.addService(formData);
+            if (result?.status === 'success') {
+                alert('Service created successfully');
+                onComplete();
+            } else {
+                alert(`Error creating service: ${result?.message || 'Unknown error'}`);
+            }
+        } catch (error) {
+            alert(`Error creating service: ${error.message}`);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const isFormValid = () => {
@@ -345,7 +357,7 @@ const PythonServiceConfig = ({ onComplete }) => {
                                         </span>
                                     </div>
                                     
-                                    <div className="space-y-1 flex-1 overflow-y-auto border border-[#30363D] rounded-md bg-[#0D1117] p-1.5">
+                                    <div className="space-y-1 flex-1 overflow-y-auto border border-[#303D] rounded-md bg-[#0D1117] p-1.5">
                                         {formData.privilegeIps.length === 0 ? (
                                             <div className="flex items-center justify-center h-full">
                                                 <p className="text-[#8B949E] text-xs">No IP addresses added</p>
@@ -389,16 +401,13 @@ const PythonServiceConfig = ({ onComplete }) => {
                 </div>
                 <button
                     onClick={handleAddService}
-                    disabled={!isFormValid()}
+                    disabled={!isFormValid() || loading}
                     className={`px-4 py-2 text-sm text-white rounded-md font-medium transition-all duration-200 flex items-center gap-1.5
                         ${isFormValid() 
                             ? 'bg-[#1F6FEB] hover:bg-[#58A6FF]' 
                             : 'bg-[#21262D] cursor-not-allowed opacity-70'}`}
                 >
-                    <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    Create Python Service
+                    {loading ? 'Loading...' : 'Create Python Service'}
                 </button>
             </div>
         </div>

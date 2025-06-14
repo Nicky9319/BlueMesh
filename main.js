@@ -203,9 +203,10 @@ async function restartServer() {
 
 // Adding New Service Functions
 async function addNewPythonService(serviceInformation) {
+  console.log('Adding new Python service:', serviceInformation);
   try {
     // Set project base path
-    const projectBase = getCurrentProjectPath().trim();
+    const projectBase = await getCurrentProjectPath().then((path) => path);
 
     // Create service folder
     const svcFolderName = `service_${serviceInformation.serviceName}Service`;
@@ -219,6 +220,8 @@ async function addNewPythonService(serviceInformation) {
     const content = `# ${serviceInformation.serviceName} Python Service\nprint("Hello from ${serviceInformation.serviceName} service!")\n`;
     fs.writeFileSync(svcFilePath, content, 'utf8');
     console.log(`Wrote service file: ${svcFilePath}`);
+
+    return true;
   } catch (err) {
     console.error('Error in addNewPythonService:', err);
   }
@@ -601,17 +604,25 @@ ipcMain.handle('server:getStatus', async (event) => {
 ipcMain.handle('service:addService', async (event, serviceInfo) => {
   if (serviceInfo.language === "python") {
     if (serviceInfo.framework == "fastapi") {
-      let success = await addNewPythonService(serviceInfo)
-      if (success == true) {
-        return {
-          "status": "success",
-          "message": "Python service added successfully"
+      try {
+        let success = await addNewPythonService(serviceInfo)
+        if (success == true) {
+          return {
+            "status": "success",
+            "message": "Python service added successfully"
+          }
         }
-      }
-      else {
+        else {
+          return {
+            "status": "error",
+            "message": "Currently only FastAPI Python Framework Services are supported"
+          }
+        }
+      } catch (error) {
+        console.error('Error adding Python service:', error);
         return {
           "status": "error",
-          "message": "Currently only FastAPI Python Framework Services are supported"
+          "message": `Failed to add Python service: ${error.message}`
         }
       }
 
