@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 
 const ServiceCard = ({ service, view = 'grid' }) => {
     const [showPrivilegedIPs, setShowPrivilegedIPs] = useState(false);
+    const [showActions, setShowActions] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     
     const getServiceTypeColor = (type) => {
@@ -56,10 +57,11 @@ const ServiceCard = ({ service, view = 'grid' }) => {
     if (view === 'grid') {
         return (
             <motion.div 
-                className="bg-[#161B22] border border-[#30363D] rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
-                whileHover={{ y: -4, borderColor: '#58A6FF' }}
+                className="bg-[#161B22] border border-[#30363D] rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-200"
+                whileHover={{ borderColor: '#58A6FF' }}
                 onHoverStart={() => setIsHovered(true)}
                 onHoverEnd={() => setIsHovered(false)}
+                onClick={() => setShowActions(!showActions)}
             >
                 {/* Service Header - With gradient overlay based on service type */}
                 <div 
@@ -150,25 +152,50 @@ const ServiceCard = ({ service, view = 'grid' }) => {
                     </div>
                 </div>
                 
-                {/* Quick Action Footer - Shows on hover */}
+                {/* Quick Action Footer - Shows on click */}
                 <motion.div 
                     className="flex items-center gap-2 p-3 bg-[#21262D] justify-end border-t border-[#30363D]"
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: isHovered ? 1 : 0, height: isHovered ? 'auto' : 0 }}
+                    animate={{ 
+                        opacity: showActions ? 1 : 0, 
+                        height: showActions ? 'auto' : 0 
+                    }}
+                    transition={{ duration: 0.15 }}
                 >
-                    <button className="text-[#8B949E] hover:text-[#C9D1D9] p-1.5 rounded hover:bg-[#30363D] transition-colors">
+                    <button 
+                        className="text-[#8B949E] hover:text-[#C9D1D9] p-1.5 rounded hover:bg-[#30363D] transition-colors"
+                        onClick={(e) => {
+                            e.stopPropagation(); 
+                            // Edit action logic
+                            console.log('Edit service:', service.ServiceName);
+                        }}
+                    >
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M15.502 1.94a.5.5 0 010 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 01.707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 00-.121.196l-.805 2.414a.25.25 0 00.316.316l2.414-.805a.5.5 0 00.196-.12l6.813-6.814z"/>
                             <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 002.5 15h11a1.5 1.5 0 001.5-1.5v-6a.5.5 0 00-1 0v6a.5.5 0 01-.5.5h-11a.5.5 0 01-.5-.5v-11a.5.5 0 01.5-.5H9a.5.5 0 000-1H2.5A1.5 1.5 0 001 2.5v11z"/>
                         </svg>
                     </button>
-                    <button className="text-[#8B949E] hover:text-[#C9D1D9] p-1.5 rounded hover:bg-[#30363D] transition-colors">
+                    <button 
+                        className="text-[#8B949E] hover:text-[#C9D1D9] p-1.5 rounded hover:bg-[#30363D] transition-colors"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            // Detail view logic 
+                            console.log('View details for:', service.ServiceName);
+                        }}
+                    >
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M8 15A7 7 0 108 1a7 7 0 000 14zm0 1A8 8 0 118 0a8 8 0 010 16z"/>
                             <path d="M8 4a.5.5 0 01.5.5v3h3a.5.5 0 010 1h-3v3a.5.5 0 01-1 0v-3h-3a.5.5 0 010-1h3v-3A.5.5 0 018 4z"/>
                         </svg>
                     </button>
-                    <button className="text-[#F85149] hover:text-[#F85149] p-1.5 rounded hover:bg-[#30363D] transition-colors">
+                    <button 
+                        className="text-[#F85149] hover:text-[#F85149] p-1.5 rounded hover:bg-[#30363D] transition-colors"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            // Delete logic
+                            console.log('Delete service:', service.ServiceName);
+                        }}
+                    >
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M5.5 5.5A.5.5 0 016 6v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5 0a.5.5 0 01.5.5v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm3 .5a.5.5 0 00-1 0v6a.5.5 0 001 0V6z"/>
                             <path fillRule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
