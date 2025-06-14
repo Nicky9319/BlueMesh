@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
 
 const ServiceCard = ({ service, view = 'grid' }) => {
     const [showPrivilegedIPs, setShowPrivilegedIPs] = useState(false);
-    const [showActions, setShowActions] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
+    const [showActionWidget, setShowActionWidget] = useState(false);
+    const [widgetPosition, setWidgetPosition] = useState({ x: 0, y: 0 });
+    const cardRef = useRef(null);
+    const widgetRef = useRef(null);
+    const actionButtonRef = useRef(null);
     
     const getServiceTypeColor = (type) => {
         switch (type?.toLowerCase()) {
@@ -53,16 +57,117 @@ const ServiceCard = ({ service, view = 'grid' }) => {
         return type?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Service';
     };
     
+    // Close widget when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (showActionWidget && 
+                widgetRef.current && 
+                !widgetRef.current.contains(event.target) &&
+                actionButtonRef.current && 
+                !actionButtonRef.current.contains(event.target)) {
+                setShowActionWidget(false);
+            }
+        };
+        
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showActionWidget]);
+    
+    const handleActionButtonClick = (e) => {
+        e.stopPropagation();
+        
+        // Calculate the position for the widget relative to the button
+        const buttonRect = e.currentTarget.getBoundingClientRect();
+        const cardRect = cardRef.current.getBoundingClientRect();
+        
+        // Position widget above the action button
+        const x = buttonRect.left - cardRect.left + buttonRect.width / 2;
+        const y = buttonRect.top - cardRect.top;
+        
+        setWidgetPosition({ x, y });
+        setShowActionWidget(!showActionWidget);
+    };
+    
+    // Action widget component - Now rendered with Portal to escape overflow context
+    const ActionWidget = () => (
+        showActionWidget && createPortal(
+            <motion.div
+                ref={widgetRef}
+                className="fixed z-50 bg-[#21262D] rounded-full shadow-lg border border-[#30363D] flex items-center p-1"
+                style={{ 
+                    left: cardRef.current ? cardRef.current.getBoundingClientRect().left + widgetPosition.x : 0, 
+                    top: cardRef.current ? cardRef.current.getBoundingClientRect().top + widgetPosition.y - 50 : 0,
+                    transform: 'translate(-50%, -50%)' 
+                }}
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.5, opacity: 0 }}
+                transition={{ type: "spring", damping: 15, stiffness: 300 }}
+            >
+                <motion.button 
+                    whileHover={{ scale: 1.2 }}
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-[#30363D] text-[#C9D1D9] hover:text-white m-1"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        console.log('Edit service:', service.ServiceName);
+                        setShowActionWidget(false);
+                    }}
+                    title="Edit service"
+                >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M15.502 1.94a.5.5 0 010 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 01.707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 00-.121.196l-.805 2.414a.25.25 0 00.316.316l2.414-.805a.5.5 0 00.196-.12l6.813-6.814z"/>
+                    </svg>
+                </motion.button>
+                
+                <motion.button 
+                    whileHover={{ scale: 1.2 }}
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-[#30363D] text-[#8B949E] hover:text-[#58A6FF] m-1"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        console.log('View service details:', service.ServiceName);
+                        setShowActionWidget(false);
+                    }}
+                    title="View details"
+                >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M10.5 8a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                        <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"/>
+                    </svg>
+                </motion.button>
+                
+                <motion.button 
+                    whileHover={{ scale: 1.2 }}
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-[#30363D] text-[#F85149] hover:text-[#FA7A74] m-1"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        console.log('Delete service:', service.ServiceName);
+                        setShowActionWidget(false);
+                    }}
+                    title="Delete service"
+                >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M5.5 5.5A.5.5 0 016 6v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5 0a.5.5 0 01.5.5v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm3 .5a.5.5 0 00-1 0v6a.5.5 0 001 0V6z"/>
+                        <path fillRule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                    </svg>
+                </motion.button>
+            </motion.div>,
+            document.body
+        )
+    );
+    
     // Grid view card
     if (view === 'grid') {
         return (
             <motion.div 
-                className="bg-[#161B22] border border-[#30363D] rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-200"
+                ref={cardRef}
+                className="bg-[#161B22] border border-[#30363D] rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 relative"
                 whileHover={{ borderColor: '#58A6FF' }}
-                onHoverStart={() => setIsHovered(true)}
-                onHoverEnd={() => setIsHovered(false)}
-                onClick={() => setShowActions(!showActions)}
             >
+                {/* Action Widget */}
+                <ActionWidget />
+                
                 {/* Service Header - With gradient overlay based on service type */}
                 <div 
                     className="p-4 pb-3 relative"
@@ -104,6 +209,7 @@ const ServiceCard = ({ service, view = 'grid' }) => {
                                 <span>HTTP Server</span>
                             </div>
                         </div>
+
                         <div className="flex items-center">
                             <code className="text-[#58A6FF] text-xs font-mono bg-[#0D1117] px-2 py-1 rounded w-full truncate">
                                 http://{service.ServiceHttpHost}:{service.ServiceHttpPort}
@@ -114,32 +220,35 @@ const ServiceCard = ({ service, view = 'grid' }) => {
                         {service.ServiceHttpPriviledgedIpAddress && service.ServiceHttpPriviledgedIpAddress.length > 0 && (
                             <div className="mt-1.5">
                                 <button
-                                    onClick={() => setShowPrivilegedIPs(!showPrivilegedIPs)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowPrivilegedIPs(!showPrivilegedIPs);
+                                    }}
                                     className="flex items-center gap-1 text-[#8B949E] text-xs hover:text-[#58A6FF] transition-colors"
+                            >
+                                <svg className={`w-3 h-3 transition-transform ${showPrivilegedIPs ? 'rotate-90' : ''}`} 
+                                     fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M4.646 1.646a.5.5 0 01.708 0l6 6a.5.5 0 010 .708l-6 6a.5.5 0 01-.708-.708L10.293 8 4.646 2.354a.5.5 0 010-.708z"/>
+                                </svg>
+                                <span>Privileged IPs ({service.ServiceHttpPriviledgedIpAddress.length})</span>
+                            </button>
+                            {showPrivilegedIPs && (
+                                <motion.div 
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    className="mt-1.5 pl-2 border-l-2 border-[#30363D] text-[#C9D1D9] text-xs font-mono space-y-1"
                                 >
-                                    <svg className={`w-3 h-3 transition-transform ${showPrivilegedIPs ? 'rotate-90' : ''}`} 
-                                         fill="currentColor" viewBox="0 0 16 16">
-                                        <path d="M4.646 1.646a.5.5 0 01.708 0l6 6a.5.5 0 010 .708l-6 6a.5.5 0 01-.708-.708L10.293 8 4.646 2.354a.5.5 0 010-.708z"/>
-                                    </svg>
-                                    <span>Privileged IPs ({service.ServiceHttpPriviledgedIpAddress.length})</span>
-                                </button>
-                                {showPrivilegedIPs && (
-                                    <motion.div 
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: 'auto' }}
-                                        className="mt-1.5 pl-2 border-l-2 border-[#30363D] text-[#C9D1D9] text-xs font-mono space-y-1"
-                                    >
-                                        {service.ServiceHttpPriviledgedIpAddress.map((ip, index) => (
-                                            <div key={index} className="truncate">{ip}</div>
-                                        ))}
-                                    </motion.div>
-                                )}
+                                    {service.ServiceHttpPriviledgedIpAddress.map((ip, index) => (
+                                        <div key={index} className="truncate">{ip}</div>
+                                    ))}
+                                </motion.div>
+                            )}
                             </div>
                         )}
                     </div>
 
                     {/* Service Info Tags */}
-                    <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-[#30363D]">
+                    <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-[#30363D] p-4 pt-3">
                         <span className="bg-[#1F6FEB] bg-opacity-20 text-[#58A6FF] px-2 py-1 rounded-full text-xs">
                             HTTP
                         </span>
@@ -150,70 +259,65 @@ const ServiceCard = ({ service, view = 'grid' }) => {
                             Port: {service.ServiceHttpPort}
                         </span>
                     </div>
+                    
                 </div>
                 
-                {/* Quick Action Footer - Shows on click */}
-                <motion.div 
-                    className="flex items-center gap-2 p-3 bg-[#21262D] justify-end border-t border-[#30363D]"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ 
-                        opacity: showActions ? 1 : 0, 
-                        height: showActions ? 'auto' : 0 
-                    }}
-                    transition={{ duration: 0.15 }}
+                {/* Privileged IPs - Updated to stop propagation */}
+                {service.ServiceHttpPriviledgedIpAddress && service.ServiceHttpPriviledgedIpAddress.length > 0 && (
+                    <div className="mt-1.5">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowPrivilegedIPs(!showPrivilegedIPs);
+                            }}
+                            className="flex items-center gap-1 text-[#8B949E] text-xs hover:text-[#58A6FF] transition-colors"
+                        >
+                            <svg className={`w-3 h-3 transition-transform ${showPrivilegedIPs ? 'rotate-90' : ''}`} 
+                                 fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M4.646 1.646a.5.5 0 01.708 0l6 6a.5.5 0 010 .708l-6 6a.5.5 0 01-.708-.708L10.293 8 4.646 2.354a.5.5 0 010-.708z"/>
+                            </svg>
+                            <span>Privileged IPs ({service.ServiceHttpPriviledgedIpAddress.length})</span>
+                        </button>
+                        {showPrivilegedIPs && (
+                            <motion.div 
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="mt-1.5 pl-2 border-l-2 border-[#30363D] text-[#C9D1D9] text-xs font-mono space-y-1"
+                            >
+                                {service.ServiceHttpPriviledgedIpAddress.map((ip, index) => (
+                                    <div key={index} className="truncate">{ip}</div>
+                                ))}
+                            </motion.div>
+                        )}
+                    </div>
+                )}
+                
+                {/* Action Button in bottom right corner */}
+                <motion.button
+                    ref={actionButtonRef}
+                    className="absolute bottom-2 right-2 w-8 h-8 bg-[#30363D] rounded-full flex items-center justify-center text-[#8B949E] hover:text-[#C9D1D9] hover:bg-[#444C56] transition-colors z-10"
+                    onClick={handleActionButtonClick}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
                 >
-                    <button 
-                        className="text-[#8B949E] hover:text-[#C9D1D9] p-1.5 rounded hover:bg-[#30363D] transition-colors"
-                        onClick={(e) => {
-                            e.stopPropagation(); 
-                            // Edit action logic
-                            console.log('Edit service:', service.ServiceName);
-                        }}
-                    >
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M15.502 1.94a.5.5 0 010 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 01.707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 00-.121.196l-.805 2.414a.25.25 0 00.316.316l2.414-.805a.5.5 0 00.196-.12l6.813-6.814z"/>
-                            <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 002.5 15h11a1.5 1.5 0 001.5-1.5v-6a.5.5 0 00-1 0v6a.5.5 0 01-.5.5h-11a.5.5 0 01-.5-.5v-11a.5.5 0 01.5-.5H9a.5.5 0 000-1H2.5A1.5 1.5 0 001 2.5v11z"/>
-                        </svg>
-                    </button>
-                    <button 
-                        className="text-[#8B949E] hover:text-[#C9D1D9] p-1.5 rounded hover:bg-[#30363D] transition-colors"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            // Detail view logic 
-                            console.log('View details for:', service.ServiceName);
-                        }}
-                    >
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M8 15A7 7 0 108 1a7 7 0 000 14zm0 1A8 8 0 118 0a8 8 0 010 16z"/>
-                            <path d="M8 4a.5.5 0 01.5.5v3h3a.5.5 0 010 1h-3v3a.5.5 0 01-1 0v-3h-3a.5.5 0 010-1h3v-3A.5.5 0 018 4z"/>
-                        </svg>
-                    </button>
-                    <button 
-                        className="text-[#F85149] hover:text-[#F85149] p-1.5 rounded hover:bg-[#30363D] transition-colors"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            // Delete logic
-                            console.log('Delete service:', service.ServiceName);
-                        }}
-                    >
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M5.5 5.5A.5.5 0 016 6v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5 0a.5.5 0 01.5.5v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm3 .5a.5.5 0 00-1 0v6a.5.5 0 001 0V6z"/>
-                            <path fillRule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                        </svg>
-                    </button>
-                </motion.div>
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M3 9.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm5 0a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm5 0a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/>
+                    </svg>
+                </motion.button>
             </motion.div>
         );
     }
     
-    // List view card
+    // List view card - Also updated with action button
     return (
         <motion.div 
-            className="bg-[#161B22] border border-[#30363D] rounded-lg overflow-hidden shadow hover:shadow-md transition-all duration-200"
+            ref={cardRef}
+            className="bg-[#161B22] border border-[#30363D] rounded-lg shadow hover:shadow-md transition-all duration-200 relative"
             whileHover={{ borderColor: '#58A6FF' }}
-            onHoverStart={() => setIsHovered(true)}
-            onHoverEnd={() => setIsHovered(false)}
         >
+            {/* Action Widget */}
+            <ActionWidget />
+            
             <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 {/* Service Info */}
                 <div className="flex items-center gap-3">
@@ -272,11 +376,14 @@ const ServiceCard = ({ service, view = 'grid' }) => {
                 </div>
             </div>
             
-            {/* Privileged IPs - Collapsible section */}
+            {/* Privileged IPs - Collapsible section - Updated to stop propagation */}
             {service.ServiceHttpPriviledgedIpAddress && service.ServiceHttpPriviledgedIpAddress.length > 0 && (
                 <div className="border-t border-[#30363D] px-4 py-2">
                     <button
-                        onClick={() => setShowPrivilegedIPs(!showPrivilegedIPs)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowPrivilegedIPs(!showPrivilegedIPs);
+                        }}
                         className="flex items-center gap-1 text-[#8B949E] text-xs hover:text-[#58A6FF] transition-colors w-full"
                     >
                         <svg className={`w-3 h-3 transition-transform ${showPrivilegedIPs ? 'rotate-90' : ''}`} 
@@ -300,6 +407,19 @@ const ServiceCard = ({ service, view = 'grid' }) => {
                     )}
                 </div>
             )}
+            
+            {/* Action Button in right side */}
+            <motion.button
+                ref={actionButtonRef}
+                className="absolute top-1/2 right-2 -translate-y-1/2 w-8 h-8 bg-[#30363D] rounded-full flex items-center justify-center text-[#8B949E] hover:text-[#C9D1D9] hover:bg-[#444C56] transition-colors z-10"
+                onClick={handleActionButtonClick}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+            >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M3 9.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm5 0a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm5 0a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/>
+                </svg>
+            </motion.button>
         </motion.div>
     );
 };
