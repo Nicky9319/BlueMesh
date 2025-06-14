@@ -83,6 +83,7 @@ const useServiceCard = (service) => {
         const buttonRect = e.currentTarget.getBoundingClientRect();
         const cardRect = cardRef.current.getBoundingClientRect();
         
+        // Position widget directly above the button
         const x = buttonRect.left - cardRect.left + buttonRect.width / 2;
         const y = buttonRect.top - cardRect.top;
         
@@ -134,8 +135,8 @@ const ActionWidget = ({
             className="fixed z-50 bg-[#21262D] rounded-full shadow-lg border border-[#30363D] flex items-center p-1"
             style={{ 
                 left: cardRef.current ? cardRef.current.getBoundingClientRect().left + widgetPosition.x : 0, 
-                top: cardRef.current ? cardRef.current.getBoundingClientRect().top + widgetPosition.y - 50 : 0,
-                transform: 'translate(-50%, -50%)' 
+                top: cardRef.current ? cardRef.current.getBoundingClientRect().top + widgetPosition.y - 60 : 0,
+                transform: 'translate(-50%, 0)' 
             }}
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -381,6 +382,7 @@ const ServiceCard = ({ service, view = 'grid' }) => {
         showPrivilegedIPs,
         setShowPrivilegedIPs,
         showActionWidget,
+        widgetPosition,
         cardRef,
         widgetRef,
         actionButtonRef,
@@ -401,7 +403,7 @@ const ServiceCard = ({ service, view = 'grid' }) => {
                     showActionWidget={showActionWidget}
                     widgetRef={widgetRef}
                     cardRef={cardRef}
-                    widgetPosition={{ x: 0, y: 0 }}
+                    widgetPosition={widgetPosition}
                     handleEditService={handleEditService}
                     handleDeleteService={handleDeleteService}
                 />
