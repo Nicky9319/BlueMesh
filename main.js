@@ -204,12 +204,44 @@ async function restartServer() {
 // Adding New Service Functions
 async function addNewPythonService(serviceInformation) {
   try {
-    let currentProjectPath = getCurrentProjectPath();
-    
-  } catch (error) {
+    const wslPrefix = "\\\\wsl.localhost\\";
+    let currentProjectPath = await getCurrentProjectPath();
+    let servicePath = currentProjectPath.path.trim();
+    let isWSL = servicePath.startsWith(wslPrefix);
 
+    let linuxServicePath = servicePath;
+    let wslDistro = "";
+
+    if (isWSL) {
+      console.log("Detected WSL path.");
+      console.log(`WSL Path: ${servicePath}`);
+      
+      // Extract distro name and convert path to Linux style
+      const serviceParts = servicePath.slice(wslPrefix.length).split("\\");
+      wslDistro = serviceParts.shift();
+      linuxServicePath = "/" + serviceParts.join("/");
+
+      // --- 🔧 Place your WSL-specific business logic here ---
+      console.log("Detected WSL path.");
+      console.log(`WSL Distro: ${wslDistro}`);
+      console.log(`Linux-style service path: ${linuxServicePath}`);
+
+      // Example: You can now call spawnService or other WSL operations
+      // const result = spawnService(interpreterPath, servicePath);
+
+    } else {
+      // --- 🔧 Place your Windows-specific business logic here ---
+      console.log("Detected native Windows path.");
+      console.log(`Windows-style service path: ${servicePath}`);
+
+      // Proceed with normal Windows service logic
+      // e.g., validate path, load service files, etc.
+    }
+  } catch (error) {
+    console.error("Error adding new Python service:", error);
   }
 }
+
 
 // IPC Handle Section !!! ------------------------------------------------------------------------------------------------------
 
