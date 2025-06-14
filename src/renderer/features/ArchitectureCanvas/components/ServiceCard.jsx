@@ -231,8 +231,9 @@ const ServiceCard = ({ service, view = 'grid' }) => {
                     {/* Action buttons */}
                     <div className="flex gap-1">
                         <button className="p-1.5 rounded hover:bg-[#30363D] transition-colors text-[#8B949E] hover:text-[#C9D1D9]">
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16"/>
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
                                 <path d="M15.502 1.94a.5.5 0 010 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 01.707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 00-.121.196l-.805 2.414a.25.25 0 00.316.316l2.414-.805a.5.5 0 00.196-.12l6.813-6.814z"/>
+                                </svg>
                         </button>
                         <button className="p-1.5 rounded hover:bg-[#30363D] transition-colors text-[#F85149]">
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
