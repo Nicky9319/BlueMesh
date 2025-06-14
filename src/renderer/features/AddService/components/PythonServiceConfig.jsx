@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 const PythonServiceConfig = ({ onComplete }) => {
+    const [selectedFramework, setSelectedFramework] = useState('fastapi');
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
     const [formData, setFormData] = useState({
         serviceName: '',
         host: '127.0.0.1',
@@ -56,6 +59,7 @@ const PythonServiceConfig = ({ onComplete }) => {
 
     const handleAddService = () => {
         console.log('new service add functionality called');
+        console.log(formData);
         onComplete();
     };
 
@@ -66,14 +70,95 @@ const PythonServiceConfig = ({ onComplete }) => {
                formData.port > 0;
     };
 
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setDropdownOpen(false);
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     return (
         <div className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto">
-                {/* Service Name - Full Width Header */}
+                {/* Service Name with Framework Dropdown */}
                 <div className="mb-10">
-                    <label className="block text-[#C9D1D9] text-base font-medium mb-2">
-                        Service Name <span className="text-[#F85149]">*</span>
-                    </label>
+                    <div className="flex items-center justify-between mb-2">
+                        <label className="block text-[#C9D1D9] text-base font-medium">
+                            Service Name <span className="text-[#F85149]">*</span>
+                        </label>
+                        
+                        {/* Framework Dropdown */}
+                        <div className="relative" ref={dropdownRef}>
+                            <button
+                                onClick={() => setDropdownOpen(!dropdownOpen)}
+                                className="flex items-center gap-2 text-xs bg-[#161B22] border border-[#30363D] px-3 py-1.5 rounded-md text-[#C9D1D9] hover:bg-[#21262D] transition-colors"
+                            >
+                                {selectedFramework === 'fastapi' && (
+                                    <svg className="w-3 h-3 text-[#58A6FF]" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12c6.616 0 12-5.383 12-12S18.616 0 12 0zm0 4.25A7.751 7.751 0 0119.75 12 7.751 7.751 0 0112 19.75 7.751 7.751 0 014.25 12 7.751 7.751 0 0112 4.25zm0 3.141L7.391 12 12 16.609 16.609 12 12 7.391z"/>
+                                    </svg>
+                                )}
+                                {selectedFramework === 'fastapi' ? 'FastAPI' : selectedFramework}
+                                <svg className={`w-2.5 h-2.5 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            
+                            {dropdownOpen && (
+                                <div className="absolute right-0 mt-1 w-48 bg-[#161B22] border border-[#30363D] rounded-md shadow-lg z-10 py-1">
+                                    <button
+                                        onClick={() => {
+                                            setSelectedFramework('fastapi');
+                                            setDropdownOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs hover:bg-[#21262D] text-[#C9D1D9]"
+                                    >
+                                        <svg className="w-3 h-3 text-[#58A6FF]" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12c6.616 0 12-5.383 12-12S18.616 0 12 0zm0 4.25A7.751 7.751 0 0119.75 12 7.751 7.751 0 0112 19.75 7.751 7.751 0 014.25 12 7.751 7.751 0 0112 4.25zm0 3.141L7.391 12 12 16.609 16.609 12 12 7.391z"/>
+                                        </svg>
+                                        FastAPI
+                                    </button>
+                                    
+                                    <div className="group">
+                                        <div className="px-3 py-2 text-xs text-[#8B949E] opacity-50 cursor-not-allowed flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M11.93.005c-.514 0-1.016.098-1.487.291-1.22.5-2.202 1.51-2.701 2.755a5.279 5.279 0 0 0-.348 1.373a79.375 79.375 0 0 0-.275 6.895 164.494 164.494 0 0 0 .025 2.193 27.983 27.983 0 0 1-4.55 1.812a9.93 9.93 0 0 0-1.651.756C.28 16.51 0 17.191 0 18.029c0 .893.203 1.42.583 1.928.38.508.94.833 1.585.96a5.893 5.893 0 0 0 1.142.04c1.76-.15 3.8-.893 6.009-2.31 2.21 1.417 4.25 2.16 6.01 2.31.38.033.762.016 1.141-.04.646-.127 1.206-.452 1.586-.96.38-.508.583-1.035.583-1.928 0-.838-.28-1.52-.943-1.95a9.926 9.926 0 0 0-1.65-.755 27.92 27.92 0 0 1-4.552-1.812c.01-.728.017-1.461.025-2.193.051-2.966.043-5.042-.275-6.895a5.517 5.517 0 0 0-.347-1.373c-.5-1.244-1.481-2.255-2.702-2.755a4.012 4.012 0 0 0-1.487-.29z"/>
+                                                </svg>
+                                                Django
+                                            </div>
+                                            <span className="text-xs">🔒</span>
+                                        </div>
+                                        <div className="hidden group-hover:block absolute right-full mr-2 -top-2 bg-[#30363D] text-[#C9D1D9] px-2 py-1 rounded text-xs whitespace-nowrap shadow-lg z-20">
+                                            Coming Soon
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="group">
+                                        <div className="px-3 py-2 text-xs text-[#8B949E] opacity-50 cursor-not-allowed flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M10.68 18.474c-1.154-.612-1.953-1.556-2.35-2.691-.34-.971-.376-1.858-.376-2.861 0-.91.035-1.798.375-2.769.397-1.135 1.196-2.08 2.35-2.691 1.153.611 1.952 1.556 2.35 2.691.34.971.375 1.859.375 2.769 0 1.003-.036 1.89-.375 2.861-.398 1.135-1.197 2.08-2.35 2.691z"/>
+                                                </svg>
+                                                Flask
+                                            </div>
+                                            <span className="text-xs">🔒</span>
+                                        </div>
+                                        <div className="hidden group-hover:block absolute right-full mr-2 -top-2 bg-[#30363D] text-[#C9D1D9] px-2 py-1 rounded text-xs whitespace-nowrap shadow-lg z-20">
+                                            Coming Soon
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    
                     <div className="relative">
                         <input
                             type="text"
@@ -93,9 +178,9 @@ const PythonServiceConfig = ({ onComplete }) => {
                 </div>
 
                 {/* Main Configuration Area */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Left Column - Network Settings */}
-                    <div className="space-y-8">
+                    <div className="space-y-6">
                         {/* Network Configuration */}
                         <div className="relative rounded-lg bg-gradient-to-r from-[#161B22] to-[#0D1117] p-[1px] group">
                             <div className="rounded-lg bg-[#0D1117] p-6">

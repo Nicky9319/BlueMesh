@@ -39,6 +39,8 @@ function serializeFolderStructure(structure) {
   return serialized;
 }
 
+
+// Get Project Path Information
 function getCurrentProjectPath() {
   return new Promise((resolve, reject) => {
     ipcMain.once(`project:setProjectPath`, (event, responseData) => {
@@ -50,6 +52,8 @@ function getCurrentProjectPath() {
   })
 }
 
+
+// Get Service Json File
 function getServicesJson() {
   return new Promise((resolve, reject) => {
     ipcMain.once(`services:setServicesJsonFile`, (event, responseData) => {
@@ -60,12 +64,15 @@ function getServicesJson() {
   })
 }
 
+// updating the Console output for Service
 function serviceConsoleOutput(serviceId, output) {
   mainWindow.webContents.send('services:updateConsoleOutput', serviceId, output);
   mainWindow.webContents.send('services:updateConsoleOutput', 'collective-logs', output);
   // console.log(`Service ${serviceId} Output:`, output);
 };
 
+
+// Start Server Functions
 function spawnService(interpretatorPath, servicePath) {
   const wslPrefix = "\\\\wsl.localhost\\";
   let isInterpreterWSL = interpretatorPath.trim().startsWith(wslPrefix);
@@ -154,6 +161,7 @@ async function startServer() {
 }
 
 
+// Stopping Server Functions
 function stopIndividualService(serviceName) {
   const serviceProcess = servicesProcesses[serviceName];
   if (serviceProcess) {
@@ -179,6 +187,8 @@ async function stopServer() {
   stopAllServices();
 }
 
+
+// Restarting Server Functions
 async function restartServer() {
   try {
     await stopServer();
@@ -188,6 +198,16 @@ async function restartServer() {
   } catch (error) {
     console.error('Error restarting server:', error);
     return false;
+  }
+}
+
+// Adding New Service Functions
+async function addNewPythonService(serviceInformation) {
+  try {
+    let currentProjectPath = getCurrentProjectPath();
+    
+  } catch (error) {
+
   }
 }
 
@@ -562,6 +582,31 @@ ipcMain.handle('server:getStatus', async (event) => {
     state: serverState,
     success: true
   };
+});
+
+// Service management handlers
+ipcMain.handle('service:addService', async (event, serviceInfo) => {
+  if (serviceInfo.ServiceName === "python") {
+    let success = await addNewPythonService(serviceInfo)
+    if (success == true) {
+      return {
+        "status": "success",
+        "message": "Python service added successfully"
+      }
+    }
+    else {
+      return {
+        "status": "error",
+        "message": "Failed to add Python service"
+      }
+    }
+  }
+  else {
+    return {
+      "status": "error",
+      "message": "Currently only Dealing with Python Language Services"
+    }
+  }
 });
 
 // Add this IPC handler before the App Section
