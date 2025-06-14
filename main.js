@@ -313,7 +313,7 @@ async function addNewPythonService(serviceInformation) {
       services = JSON.parse(fs.readFileSync(servicesJsonPath, 'utf8'));
     }
     services.push({
-      ServiceLanguage:               serviceInformation.language,
+      ServiceLanguage:              "Python",
       ServiceFramework:              serviceInformation.framework,
       ServiceName:                   serviceInformation.serviceName,
       ServiceFolderName:             svcFolderName,
