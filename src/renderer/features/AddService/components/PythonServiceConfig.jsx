@@ -59,6 +59,13 @@ const PythonServiceConfig = ({ onComplete }) => {
         onComplete();
     };
 
+    const isFormValid = () => {
+        return formData.serviceName.trim() && 
+               formData.host.trim() && 
+               formData.port && 
+               formData.port > 0;
+    };
+
     return (
         <div className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto">
@@ -103,24 +110,46 @@ const PythonServiceConfig = ({ onComplete }) => {
                                 
                                 <div className="grid grid-cols-2 gap-6 mt-2">
                                     <div className="space-y-1">
-                                        <label className="text-[#8B949E] text-sm">Host</label>
-                                        <input
-                                            type="text"
-                                            name="host"
-                                            value={formData.host}
-                                            onChange={handleChange}
-                                            className="w-full px-3 py-2 bg-[#161B22] border border-[#30363D] rounded-md text-[#C9D1D9] focus:outline-none focus:ring-1 focus:ring-[#1F6FEB] focus:border-[#1F6FEB] transition-all duration-200"
-                                        />
+                                        <label className="text-[#8B949E] text-sm">
+                                            Host <span className="text-[#F85149]">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                name="host"
+                                                value={formData.host}
+                                                onChange={handleChange}
+                                                required
+                                                className="w-full px-3 py-2 bg-[#161B22] border border-[#30363D] rounded-md text-[#C9D1D9] focus:outline-none focus:ring-1 focus:ring-[#1F6FEB] focus:border-[#1F6FEB] transition-all duration-200"
+                                            />
+                                            {!formData.host.trim() && (
+                                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                    <span className="text-[#F85149] text-xs">Required</span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[#8B949E] text-sm">Port</label>
-                                        <input
-                                            type="number"
-                                            name="port"
-                                            value={formData.port}
-                                            onChange={handleChange}
-                                            className="w-full px-3 py-2 bg-[#161B22] border border-[#30363D] rounded-md text-[#C9D1D9] focus:outline-none focus:ring-1 focus:ring-[#1F6FEB] focus:border-[#1F6FEB] transition-all duration-200"
-                                        />
+                                        <label className="text-[#8B949E] text-sm">
+                                            Port <span className="text-[#F85149]">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                name="port"
+                                                value={formData.port}
+                                                onChange={handleChange}
+                                                required
+                                                min="1"
+                                                max="65535"
+                                                className="w-full px-3 py-2 bg-[#161B22] border border-[#30363D] rounded-md text-[#C9D1D9] focus:outline-none focus:ring-1 focus:ring-[#1F6FEB] focus:border-[#1F6FEB] transition-all duration-200"
+                                            />
+                                            {(!formData.port || formData.port <= 0) && (
+                                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                    <span className="text-[#F85149] text-xs">Required</span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -250,13 +279,14 @@ const PythonServiceConfig = ({ onComplete }) => {
             {/* Action Button */}
             <div className="flex items-center justify-between mt-10 pt-6 border-t border-[#30363D]">
                 <div className="text-[#8B949E] text-sm">
-                    <span className="text-[#3FB950]">•</span> Configuration ready
+                    <span className={isFormValid() ? "text-[#3FB950]" : "text-[#F85149]"}>•</span> 
+                    {isFormValid() ? "Configuration ready" : "Please fill required fields"}
                 </div>
                 <button
                     onClick={handleAddService}
-                    disabled={!formData.serviceName.trim()}
+                    disabled={!isFormValid()}
                     className={`px-5 py-2.5 text-white rounded-md font-medium transition-all duration-200 flex items-center gap-2
-                        ${formData.serviceName.trim() 
+                        ${isFormValid() 
                             ? 'bg-[#1F6FEB] hover:bg-[#58A6FF]' 
                             : 'bg-[#21262D] cursor-not-allowed opacity-70'}`}
                 >
